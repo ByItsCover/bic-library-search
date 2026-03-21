@@ -1,0 +1,16 @@
+{
+  "name": "bic-library-search",
+  "version": "1.0.0",
+  "homepage": "https://github.com/ByItsCover/bic-library-search#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ByItsCover/bic-library-search.git"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.161",
+    "esbuild": "^0.27.4"
+  }
+}
