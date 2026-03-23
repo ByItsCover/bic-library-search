@@ -23,7 +23,7 @@ COPY package.json ${FUNCTION_DIR}
 
 RUN npm install
 RUN npm run typecheck
-RUN npm run build -- --outdir ${FUNCTION_DIR}/dist
+RUN npm run build -- --outdir=${FUNCTION_DIR}/dist
 RUN npm install --production --prefix ${FUNCTION_DIR}
 
 # Deploy Stage
