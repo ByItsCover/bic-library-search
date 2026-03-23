@@ -18,7 +18,7 @@ ARG FUNCTION_DIR
 
 RUN mkdir -p ${FUNCTION_DIR}
 
-COPY package.json ${FUNCTION_DIR}
+COPY package.json tsconfig.json src/index.ts ${FUNCTION_DIR}
 
 RUN npm install aws-lambda-ric --prefix ${FUNCTION_DIR}
 RUN npm install --prefix ${FUNCTION_DIR}
@@ -33,7 +33,7 @@ ARG FUNCTION_DIR
 WORKDIR ${FUNCTION_DIR}
 ENV ROOT_DIR=${FUNCTION_DIR}
 
-COPY --from=build ${FUNCTION_DIR} ${FUNCTION_DIR}
+COPY --from=build ${FUNCTION_DIR}/dist/* ${FUNCTION_DIR}
 
 ENTRYPOINT ["npx", "aws-lambda-ric"]
 
