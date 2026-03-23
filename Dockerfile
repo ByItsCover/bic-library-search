@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     cmake \
     unzip \
     xz-utils \
+    python3 \
     libcurl4-openssl-dev
 
 ARG FUNCTION_DIR
