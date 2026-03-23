@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
 
 ARG FUNCTION_DIR
 
-RUN mkdir -p ${FUNCTION_DIR}
+RUN mkdir -p ${FUNCTION_DIR}/dist
 
 COPY package.json tsconfig.json ./src .
 COPY package.json ${FUNCTION_DIR}
