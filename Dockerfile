@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     make \
     cmake \
     unzip \
-    xz \
+    xz-utils \
     libcurl4-openssl-dev
 
 ARG FUNCTION_DIR
