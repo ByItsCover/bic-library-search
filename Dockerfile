@@ -17,7 +17,7 @@ ARG FUNCTION_DIR
 RUN mkdir -p ${FUNCTION_DIR}
 
 #COPY download_model.py build_requirements.txt requirements.txt ./
-COPY package.json ./
+COPY package.json ${FUNCTION_DIR}
 
 #RUN pip install --no-cache-dir -r build_requirements.txt
 #RUN python download_model.py ${FUNCTION_DIR}
