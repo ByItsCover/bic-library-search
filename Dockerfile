@@ -33,7 +33,7 @@ ARG FUNCTION_DIR
 WORKDIR ${FUNCTION_DIR}
 ENV ROOT_DIR=${FUNCTION_DIR}
 
-COPY --from=build ${FUNCTION_DIR}/dist/* ${FUNCTION_DIR}
+COPY --from=build ${FUNCTION_DIR}dist/* ${FUNCTION_DIR}
 
 ENTRYPOINT ["npx", "aws-lambda-ric"]
 
