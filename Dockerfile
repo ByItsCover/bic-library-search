@@ -18,15 +18,13 @@ ARG FUNCTION_DIR
 
 RUN mkdir -p ${FUNCTION_DIR}
 
-#COPY download_model.py build_requirements.txt requirements.txt ./
+COPY src/index.ts tsconfig.json ./
 COPY package.json ${FUNCTION_DIR}
 
-#RUN pip install --no-cache-dir -r build_requirements.txt
-#RUN python download_model.py ${FUNCTION_DIR}
-#RUN pip install --no-cache-dir awslambdaric --target ${FUNCTION_DIR}
 RUN npm install aws-lambda-ric --prefix ${FUNCTION_DIR}
-#RUN pip install --no-cache-dir -r requirements.txt --target ${FUNCTION_DIR}
 RUN npm install --prefix ${FUNCTION_DIR}
+RUN npm install ts-node
+RUN tsc index.ts --outFile ${FUNCTION_DIR}/index.js
 
 # Deploy Stage
 
@@ -38,11 +36,7 @@ WORKDIR ${FUNCTION_DIR}
 ENV ROOT_DIR=${FUNCTION_DIR}
 
 COPY --from=build ${FUNCTION_DIR} ${FUNCTION_DIR}
-#COPY server.py processor.py embedder.py models.py ./
-COPY src/index.ts tsconfig.json ./
 
-#ENTRYPOINT [ "python", "-m", "awslambdaric"]
 ENTRYPOINT ["npx", "aws-lambda-ric"]
 
-#CMD [ "server.lambda_handler" ]
 CMD ["index.handler"]

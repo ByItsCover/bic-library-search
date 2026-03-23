@@ -31,7 +31,7 @@ resource "aws_apigatewayv2_route" "default_get" {
   authorization_type = "AWS_IAM"
 }
 
-resource "aws_apigatewayv2_stage" "embed_stage" {
+resource "aws_apigatewayv2_stage" "search_stage" {
   api_id = local.api_gw_id
 
   name        = var.environment
