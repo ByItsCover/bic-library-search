@@ -1,0 +1,45 @@
+name: terraform-plan
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ["master"]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  plan:
+    name: Terraform plan
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: terraform/
+
+    env:
+      ENVIRONMENT: prod
+      TF_CLOUD_PROJECT: ByItsCover_PROD
+      TF_WORKSPACE: bic-library-search-prod
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Hashicorp - Terraform setup
+        uses: hashicorp/setup-terraform@v3.1.2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: |
+          terraform fmt -recursive
+          terraform validate
+        continue-on-error: false
+
+      - name: Terraform Plan
+        run: terraform plan -var-file=variables/${{ env.ENVIRONMENT }}.tfvars
