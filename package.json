@@ -7,7 +7,7 @@
     "url": "git+https://github.com/ByItsCover/bic-library-search.git"
   },
   "scripts": {
-    "build": "tsc -p ."
+    "build": "tsc"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.161",
