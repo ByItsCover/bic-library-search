@@ -28,7 +28,7 @@ variable "bic_infra_workspace" {
 variable "lambda_name" {
   type        = string
   description = "Name of Lambda Function"
-  default     = "embed-server-lambda"
+  default     = "library-search-lambda"
 }
 
 variable "lambda_memory" {
