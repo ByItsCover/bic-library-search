@@ -17,15 +17,14 @@ RUN apt-get update && apt-get install -y \
 ARG FUNCTION_DIR
 
 RUN mkdir -p ${FUNCTION_DIR}
-RUN mkdir -p ${FUNCTION_DIR}/src
 
-COPY package.json tsconfig.json ${FUNCTION_DIR}
-COPY src/* ${FUNCTION_DIR}/src
+COPY package.json tsconfig.json ./src .
+COPY package.json ${FUNCTION_DIR}
 
-RUN npm install aws-lambda-ric --prefix ${FUNCTION_DIR}
-RUN npm install --prefix ${FUNCTION_DIR}
-RUN npm run typecheck --prefix ${FUNCTION_DIR}
-RUN npm run build --prefix ${FUNCTION_DIR}
+RUN npm install
+RUN npm run typecheck
+RUN npm run build -- --outDir ${FUNCTION_DIR}/dist
+RUN npm install --production --prefix ${FUNCTION_DIR}
 
 # Deploy Stage
 
@@ -37,7 +36,7 @@ WORKDIR ${FUNCTION_DIR}
 ENV HOME="/tmp"
 ENV ROOT_DIR=${FUNCTION_DIR}
 
-COPY --from=build ${FUNCTION_DIR}/dist/* ${FUNCTION_DIR}
+COPY --from=build ${FUNCTION_DIR} ${FUNCTION_DIR}
 
 ENTRYPOINT ["npx", "aws-lambda-ric"]
 
