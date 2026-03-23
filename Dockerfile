@@ -1,6 +1,6 @@
 # Build Stage
 
-ARG NODE_VERSION=3.13
+ARG NODE_VERSION=24
 ARG FUNCTION_DIR="/app/function/"
 
 FROM node:${NODE_VERSION}-slim AS build
