@@ -16,14 +16,14 @@ RUN apt-get update && apt-get install -y \
 
 ARG FUNCTION_DIR
 
-RUN mkdir -p ${FUNCTION_DIR}/dist
+RUN mkdir -p ${FUNCTION_DIR}
 
 COPY package.json tsconfig.json ./src .
 COPY package.json ${FUNCTION_DIR}
 
 RUN npm install
 RUN npm run typecheck
-RUN npm run build -- --outDir ${FUNCTION_DIR}/dist
+RUN npm run build -- --outdir ${FUNCTION_DIR}/dist
 RUN npm install --production --prefix ${FUNCTION_DIR}
 
 # Deploy Stage
