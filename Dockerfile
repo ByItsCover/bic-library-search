@@ -1,7 +1,7 @@
 # Build Stage
 
 ARG NODE_VERSION=24
-ARG FUNCTION_DIR="/app/function/"
+ARG FUNCTION_DIR="/var/task"
 
 FROM node:${NODE_VERSION}-slim AS build
 
