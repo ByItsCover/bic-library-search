@@ -16,9 +16,13 @@ RUN apt-get update && apt-get install -y \
 
 ARG FUNCTION_DIR
 
+WORKDIR ${FUNCTION_DIR}
+
 RUN mkdir -p ${FUNCTION_DIR}
 
-COPY package.json tsconfig.json ./src .
+COPY package.json tsconfig.json ./
+COPY src ./src/
+
 COPY package.json ${FUNCTION_DIR}
 
 RUN npm install
