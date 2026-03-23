@@ -7,7 +7,8 @@
     "url": "git+https://github.com/ByItsCover/bic-library-search.git"
   },
   "scripts": {
-    "build": "tsc"
+    "typecheck": "tsc --noEmit",
+    "build": "esbuild `find src \\( -name '*.ts' \\)` --bundle --minify --platform=node --target=esnext --outdir=dist"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.161",
