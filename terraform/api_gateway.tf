@@ -36,4 +36,8 @@ resource "aws_apigatewayv2_stage" "search_stage" {
 
   name        = var.environment
   auto_deploy = true
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }

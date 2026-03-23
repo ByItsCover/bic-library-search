@@ -24,6 +24,7 @@ COPY src/* ${FUNCTION_DIR}/src
 
 RUN npm install aws-lambda-ric --prefix ${FUNCTION_DIR}
 RUN npm install --prefix ${FUNCTION_DIR}
+RUN npm run typecheck --prefix ${FUNCTION_DIR}
 RUN npm run build --prefix ${FUNCTION_DIR}
 
 # Deploy Stage
