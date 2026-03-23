@@ -18,13 +18,11 @@ ARG FUNCTION_DIR
 
 RUN mkdir -p ${FUNCTION_DIR}
 
-COPY src/index.ts tsconfig.json ./
 COPY package.json ${FUNCTION_DIR}
 
 RUN npm install aws-lambda-ric --prefix ${FUNCTION_DIR}
 RUN npm install --prefix ${FUNCTION_DIR}
-RUN npm install ts-node
-RUN tsc index.ts --outFile ${FUNCTION_DIR}/index.js
+RUN npm run build --prefix ${FUNCTION_DIR}
 
 # Deploy Stage
 
