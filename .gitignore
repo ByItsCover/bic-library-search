@@ -1,4 +1,6 @@
 search_models/
 node_modules/
+.idea/
+explore/
 
 package-lock.json
