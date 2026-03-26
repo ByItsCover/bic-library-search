@@ -1,6 +1,7 @@
 locals {
   lambda_role_arn = data.terraform_remote_state.bic_infra.outputs.lambda_function_role_arn
   api_gw_arn      = data.terraform_remote_state.bic_infra.outputs.api_gw_arn
+  s3_db_uri       = data.terraform_remote_state.bic_infra.outputs.s3_db_uri
 }
 
 resource "aws_lambda_function" "search_function" {
@@ -22,6 +23,7 @@ resource "aws_lambda_function" "search_function" {
   environment {
     variables = {
       ENVIRONMENT = var.environment
+      DB_URI      = local.s3_db_uri
     }
   }
 }
