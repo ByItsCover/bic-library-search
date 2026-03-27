@@ -7,9 +7,16 @@ import {constants} from "./constants";
 let table: lancedb.Table | null = null;
 
 async function loadTable() {
-    const uri = process.env.DB_URI;
-    const db = await lancedb.connect(uri);
-    return await db.openTable(constants.db_table_name);
+    try {
+        const uri = process.env.DB_URI;
+        const db = await lancedb.connect(uri);
+        return await db.openTable(constants.db_table_name);
+    } catch (error) {
+        console.error(error);
+        logger.error("Bad stuff happened", error as Error);
+        throw error;
+    }
+
 }
 
 export const search = async ({req} : RequestContext) => {
