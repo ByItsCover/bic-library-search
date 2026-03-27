@@ -43,9 +43,9 @@ export const search = async ({req} : RequestContext) => {
     return {
         statusCode: 200,
         body: JSON.stringify({
-            covers: result,
-        }, (key, value) => {
-            typeof value === "bigint" ? Number(value): value
+            covers: JSON.stringify(result, (key, value) => {
+                typeof value === "bigint" ? Number(value): value
+            }),
         }),
     };
 }
