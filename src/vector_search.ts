@@ -35,7 +35,7 @@ export const search = async ({req} : RequestContext) => {
     }
 
     let result = await table.search(queryVector)
-        .select(["cover_id", "isbn_13", "cover_url", "distance"])
+        .select(["cover_id", "isbn_13", "cover_url", "_distance"])
         .limit(constants.query_limit)
         .toArray();
     console.table(result);
