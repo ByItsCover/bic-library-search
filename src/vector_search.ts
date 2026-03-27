@@ -14,25 +14,34 @@ async function loadTable() {
 
 export const search = async ({req} : RequestContext) => {
     let tablePromise: Promise<lancedb.Table> | null = null;
-    if (!table) {
+    if (table === null) {
         logger.info('Table starting load');
         tablePromise = loadTable();
     }
 
-    const body = await req.json();
+    const body: {vector: number[]} = await req.json();
     logger.info('Printing body of request');
     logger.info(JSON.stringify(body));
-    logger.info(body);
 
-    if (tablePromise) {
+    const queryVector = body.vector;
+
+    if (table === null) {
+        if (tablePromise === null) {
+            throw new Error("TablePromise is null (should never happen)");
+        }
         table = await tablePromise;
+        table.search(queryVector);
         logger.info('Table loaded');
     }
+
+    let result = await table.search(queryVector).limit(constants.query_limit).toArray();
+    console.table(result);
+    logger.info(JSON.stringify(result));
 
     return {
         statusCode: 200,
         body: JSON.stringify({
-            message: 'Searching Stuff',
+            covers: result,
         }),
     };
 }
