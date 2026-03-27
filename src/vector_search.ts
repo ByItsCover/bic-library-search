@@ -34,14 +34,18 @@ export const search = async ({req} : RequestContext) => {
         logger.info('Table loaded');
     }
 
-    let result = await table.search(queryVector).limit(constants.query_limit).toArray();
+    let result = await table.search(queryVector)
+        .select(["cover_id", "isbn_13", "cover_url", "distance"])
+        .limit(constants.query_limit)
+        .toArray();
     console.table(result);
-    logger.info(JSON.stringify(result));
 
     return {
         statusCode: 200,
         body: JSON.stringify({
             covers: result,
+        }, (key, value) => {
+            typeof value === "bigint" ? Number(value): value
         }),
     };
 }
