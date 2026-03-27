@@ -1,7 +1,8 @@
 import { RequestContext } from "@aws-lambda-powertools/event-handler/types";
 import * as lancedb from "@lancedb/lancedb"
 import { logger } from "./logger";
-import {constants} from "./constants";
+import { constants } from "./constants";
+import { CoverResult } from "./types";
 
 
 let table: lancedb.Table | null = null;
@@ -34,18 +35,21 @@ export const search = async ({req} : RequestContext) => {
         logger.info('Table loaded');
     }
 
-    let result = await table.search(queryVector)
+    let tableRes = await table.search(queryVector)
         .select(["cover_id", "isbn_13", "cover_url", "_distance"])
         .limit(constants.query_limit)
         .toArray();
-    console.table(result);
+    console.table(tableRes);
+
+    const result = tableRes as CoverResult[];
 
     return {
         statusCode: 200,
         body: JSON.stringify({
-            covers: JSON.stringify(result, (key, value) => {
-                typeof value === "bigint" ? Number(value): value
-            }),
+            covers: result.map((res) => ({
+                ...res,
+                cover_id: Number(res.cover_id),
+            })),
         }),
     };
 }
