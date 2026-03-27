@@ -7,7 +7,7 @@ import { search } from "./vector_search";
 const app = new Router();
 
 app.get('/', health);
-app.get('/search', search);
+app.post('/search', search);
 
 export const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
     logger.info(`Event: ${JSON.stringify(event, null, 2)}`);
