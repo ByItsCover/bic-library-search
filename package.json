@@ -19,6 +19,7 @@
     "@aws-lambda-powertools/event-handler": "^2.32.0",
     "@aws-lambda-powertools/logger": "^2.32.0",
     "@lancedb/lancedb": "^0.27.1",
-    "aws-lambda-ric": "^4.0.2"
+    "aws-lambda-ric": "^4.0.2",
+    "glob": "^13.0.6"
   }
 }
