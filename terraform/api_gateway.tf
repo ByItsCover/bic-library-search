@@ -15,12 +15,12 @@ resource "aws_apigatewayv2_integration" "lambda_handler" {
   }
 }
 
-resource "aws_apigatewayv2_route" "search_get" {
+resource "aws_apigatewayv2_route" "search_post" {
   api_id = local.api_gw_id
 
-  route_key          = "GET /search"
+  route_key          = "POST /search"
   target             = "integrations/${aws_apigatewayv2_integration.lambda_handler.id}"
-  authorization_type = "AWS_IAM"
+  authorization_type = "NONE"
 }
 
 resource "aws_apigatewayv2_route" "default_get" {
@@ -28,7 +28,7 @@ resource "aws_apigatewayv2_route" "default_get" {
 
   route_key          = "GET /"
   target             = "integrations/${aws_apigatewayv2_integration.lambda_handler.id}"
-  authorization_type = "AWS_IAM"
+  authorization_type = "NONE"
 }
 
 resource "aws_apigatewayv2_stage" "search_stage" {
