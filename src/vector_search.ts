@@ -45,6 +45,9 @@ export const search = async ({req} : RequestContext) => {
 
     return {
         statusCode: 200,
+        headers: {
+            "Access-Control-Allow-Origin": "*"
+        },
         body: JSON.stringify({
             covers: result.map((res) => ({
                 ...res,
