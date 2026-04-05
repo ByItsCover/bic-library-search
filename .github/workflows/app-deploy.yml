@@ -29,8 +29,6 @@ jobs:
             src:
               - '**.ts'
               - '**.json'
-              - '**.py'
-              - '**.txt'
               - 'Dockerfile'
 
   docker-deploy:
