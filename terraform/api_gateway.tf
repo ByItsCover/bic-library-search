@@ -34,7 +34,7 @@ resource "aws_apigatewayv2_route" "default_get" {
 resource "aws_apigatewayv2_stage" "search_stage" {
   api_id = local.api_gw_id
 
-  name        = var.environment
+  name        = "$default"
   auto_deploy = true
 
   lifecycle {
