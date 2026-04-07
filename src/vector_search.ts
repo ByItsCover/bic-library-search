@@ -7,10 +7,18 @@ import { CoverResult } from "./types";
 
 let table: lancedb.Table | null = null;
 
-async function loadTable() {
+const loadTable = async () => {
     const uri = process.env.DB_URI;
     const db = await lancedb.connect(uri);
     return await db.openTable(constants.db_table_name);
+}
+
+const normalize = (arr: number[]) => {
+    const norm = Math.sqrt(arr.reduce((sum, val) => sum + val**2, 0));
+
+    if (norm === 0) return Array<number>(arr.length).fill(0);
+
+    return arr.map(val => val / norm);
 }
 
 export const search = async ({req} : RequestContext) => {
@@ -24,7 +32,7 @@ export const search = async ({req} : RequestContext) => {
     logger.info('Printing body of request');
     logger.info(JSON.stringify(body));
 
-    const queryVector = body.vector;
+    const queryVector = normalize(body.vector);
 
     if (table === null) {
         if (tablePromise === null) {
