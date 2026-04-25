@@ -59,8 +59,5 @@ export const search = async ({req} : RequestContext) => {
                 cover_id: Number(res.cover_id),
             })),
         }),
-        headers: {
-            "Access-Control-Allow-Origin": "*"
-        }
     };
 }
