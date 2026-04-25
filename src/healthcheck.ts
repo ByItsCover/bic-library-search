@@ -4,5 +4,8 @@ export const health = async () => {
         body: JSON.stringify({
             message: 'Hello World',
         }),
+        headers: {
+            "Access-Control-Allow-Origin": "*"
+        }
     }
 }
