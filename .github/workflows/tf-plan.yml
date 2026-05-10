@@ -13,6 +13,8 @@ jobs:
   plan:
     name: Terraform plan
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     defaults:
       run:
@@ -26,6 +28,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Hashicorp - Terraform setup
         uses: hashicorp/setup-terraform@v4
@@ -40,6 +44,14 @@ jobs:
           terraform fmt -recursive
           terraform validate
         continue-on-error: false
+
+      - name: Render Terraform Docs
+        uses: terraform-docs/gh-actions@v1.4.1
+        with:
+          working-dir: ./terraform
+          output-file: README.md
+          output-method: inject
+          git-push: "true"
 
       - name: Terraform Plan
         run: terraform plan -var-file=variables/${{ env.ENVIRONMENT }}.tfvars
