@@ -2,7 +2,7 @@ import { RequestContext } from "@aws-lambda-powertools/event-handler/types";
 import * as lancedb from "@lancedb/lancedb"
 import { logger } from "./logger";
 import { constants } from "./constants";
-import { CoverResult } from "./types";
+import { CoverResult, NerResult } from "./types";
 
 
 let table: lancedb.Table | null = null;
@@ -28,7 +28,7 @@ export const search = async ({req} : RequestContext) => {
         tablePromise = loadTable();
     }
 
-    const body: {vector: number[]} = await req.json();
+    const body: {vector: number[], ner: NerResult[]} = await req.json();
     logger.info('Printing body of request');
     logger.info(JSON.stringify(body));
 

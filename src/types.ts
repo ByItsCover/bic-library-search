@@ -4,3 +4,9 @@ export type CoverResult = {
     cover_url: string,
     _distance: number
 };
+
+export type NerResult = {
+    label: string;
+    text: string;
+    score: number;
+};
