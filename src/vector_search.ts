@@ -128,7 +128,7 @@ export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) =>
     const idCoverMap: Map<number, CoverResult | null> = new Map(idData.search.ids.map(id => [id, null]));
     bookData.editions.forEach((edition) => {
         let coverValue = idCoverMap.get(edition.book_id);
-        if (coverValue === null) {
+        if (coverValue === null && edition.image !== null && edition.image.url !== null && edition.isbn_13 !== null) {
             let newCover: CoverResult = {
                 cover_id: edition.id,
                 isbn_13: edition.isbn_13,

@@ -26,12 +26,12 @@ export type EditionIdRetrieval = {
         __typename: "Editions";
         id: BigInt;
         book_id: number;
-        title: string
-        isbn_13: string;
+        title: string | null;
+        isbn_13: string | null;
         image: {
             __typename: "CoverImage";
-            url: string;
-        };
+            url: string | null;
+        } | null;
     }[];
 };
 
