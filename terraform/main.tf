@@ -22,8 +22,8 @@ resource "aws_lambda_function" "search_function" {
 
   environment {
     variables = {
-      ENVIRONMENT = var.environment
-      DB_URI      = local.s3_db_uri
+      ENVIRONMENT           = var.environment
+      DB_URI                = local.s3_db_uri
       HARDCOVER_SECRET_NAME = var.hardcover_secret_name
     }
   }
