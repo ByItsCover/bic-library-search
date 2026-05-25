@@ -43,6 +43,12 @@ variable "lambda_timeout" {
   default     = 30
 }
 
+variable "hardcover_secret_name" {
+  type        = string
+  description = "The name of the Hardcover API Key secret"
+  default     = "hardcover-api-key"
+}
+
 variable "log_level" {
   type        = string
   description = "Application log level for Lambda Function"
