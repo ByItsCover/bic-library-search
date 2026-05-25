@@ -84,12 +84,12 @@ export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) =>
     const GET_KEYWORD_RESULTS: TypedDocumentNode<TitleAuthorSearch, TitleAuthorSearchVariables> = gql`
         query TitleAuthorSearch {
             search(
-                query: ${keywordQuery},
+                query: "${keywordQuery}",
                 query_type: "Book",
                 per_page: ${constants.keyword_query_limit},
                 page: 1,
                 fields: "title,series_names,author_names,alternative_titles",
-                weights: ${fieldWeights},
+                weights: "${fieldWeights}",
                 typos: "5,5,5,5"
             ) {
                 ids
@@ -101,11 +101,12 @@ export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) =>
         return keywordRes;
     }
 
+    const idsString = idData.search.ids.join(",");
     const GET_EDITION_RESULTS: TypedDocumentNode<EditionIdRetrieval, EditionIdRetrievalVariables> = gql`
         query LordOfTheRingsBooks {
             editions(
                 where: {
-                    book_id: {_in: ${idData.search.ids}}
+                    book_id: {_in: [${idsString}]}
                 }
                 order_by: [{book_id: desc}, {score: desc}]
             ) {
