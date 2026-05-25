@@ -1,13 +1,13 @@
 import { RequestContext } from "@aws-lambda-powertools/event-handler/types";
 import * as lancedb from "@lancedb/lancedb"
-import { ApolloClient, gql, HttpLink, InMemoryCache, TypedDocumentNode } from "@apollo/client";
+import { ApolloClient, gql, InMemoryCache, TypedDocumentNode } from "@apollo/client";
+import {BatchHttpLink} from "@apollo/client/link/batch-http";
 import { logger } from "./logger";
 import { constants } from "./constants";
 import {
     CoverResult, EditionIdRetrieval,
     EditionIdRetrievalVariables, NerResult, TitleAuthorSearch, TitleAuthorSearchVariables
 } from "./types";
-import {BatchHttpLink} from "@apollo/client/link/batch-http";
 
 
 let table: lancedb.Table | null = null;
@@ -19,11 +19,11 @@ const loadTable = async () => {
     return await db.openTable(constants.db_table_name);
 }
 
-const loadClient = () => {
+const loadClient = (hardcoverApiKey: string) => {
     const batchLink = new BatchHttpLink({
         uri: constants.hardcover_url,
         headers: {
-            authorization: `Bearer ${process.env.HARDCOVER_TOKEN}`,
+            authorization: `Bearer ${hardcoverApiKey}`,
         },
     });
 
@@ -68,10 +68,10 @@ export const vectorSearch = async ( embedding: number[]) => {
     return tableRes;
 }
 
-export const nounSearch = async (nerPairs: NerResult[]) => {
+export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) => {
     if (client === null) {
         logger.info('GQL Client starting load');
-        client = loadClient();
+        client = loadClient(hardcoverKey);
     }
 
     let keywordRes: CoverResult[] = [];
@@ -143,13 +143,15 @@ export const nounSearch = async (nerPairs: NerResult[]) => {
     return [...idCoverMap.values().filter(res => res !== null)];
 }
 
-export const search = async ({req} : RequestContext) => {
-    const body: {vector: number[], ner: NerResult[]} = await req.json();
+export const search = async (reqCtx : RequestContext) => {
+    const body: {vector: number[], ner: NerResult[]} = await reqCtx.req.json();
     logger.info('Printing body of request');
     logger.info(JSON.stringify(body));
 
+    const hardcoverKey = reqCtx.get("hardcover_key") as string;
+
     const vectorResult = await vectorSearch(body.vector);
-    const nounResult = await nounSearch(body.ner);
+    const nounResult = await nounSearch(body.ner, hardcoverKey);
 
 
     return {

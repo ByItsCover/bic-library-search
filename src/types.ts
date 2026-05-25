@@ -21,14 +21,6 @@ export type TitleAuthorSearch = {
 
 export type TitleAuthorSearchVariables = Record<string, never>;
 
-// rocketInventory: {
-//     __typename: "Rocket";
-//     id: string;
-//     model: string;
-//     year: number;
-//     stock: number;
-// };
-
 export type EditionIdRetrieval = {
     editions: {
         __typename: "Editions";
