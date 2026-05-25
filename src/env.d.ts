@@ -5,6 +5,7 @@ declare global {
         interface ProcessEnv {
             DB_URI: string;
             ENVIRONMENT: "test" | "dev" | "prod";
+            HARDCOVER_TOKEN: string;
         }
     }
 }
