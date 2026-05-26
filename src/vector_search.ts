@@ -143,6 +143,53 @@ export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) =>
 
     return [...idCoverMap.values().filter(res => res !== null)];
 }
+``
+const rrfScore = (rank: number, weight: number, k: number) => {
+    // rank is 1 for first item, 2 for second, and so on
+    return weight * (1 / (rank + k));
+}
+
+const mergeResults = (
+    ner: CoverResult[],
+    vector: CoverResult[],
+    nerWeight: number,
+    vectorWeight: number,
+    k: number,
+    limit: number
+) => {
+    // Map from id to { item, score }
+    const bucket = new Map<BigInt, { item: CoverResult; score: number }>();
+
+    // Add fuzzy scores
+    ner.forEach((item, idx) => {
+        const rank = idx + 1;
+        const score = rrfScore(rank, nerWeight, k);
+        const prev = bucket.get(item.cover_id);
+        if (prev !== undefined) {
+            prev.score += score;
+        } else {
+            bucket.set(item.cover_id, { item, score });
+        }
+    });
+
+    // Add semantic scores
+    vector.forEach((item, idx) => {
+        const rank = idx + 1;
+        const score = rrfScore(rank, vectorWeight, k);
+        const prev = bucket.get(item.cover_id);
+        if (prev !== undefined) {
+            prev.score += score;
+        } else {
+            bucket.set(item.cover_id, { item, score });
+        }
+    });
+
+    // Convert to array and sort by score descending
+    return [...bucket.values()]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit)
+        .map(entry => entry.item);
+}
 
 export const search = async (reqCtx : RequestContext) => {
     const body: {vector: number[], ner: NerResult[]} = await reqCtx.req.json();
@@ -153,12 +200,13 @@ export const search = async (reqCtx : RequestContext) => {
 
     const vectorResult = await vectorSearch(body.vector);
     const nounResult = await nounSearch(body.ner, hardcoverKey);
+    const results = mergeResults(nounResult, vectorResult, 0.4, 0.6, 60, constants.results_limit);
 
 
     return {
         statusCode: 200,
         body: JSON.stringify({
-            covers: [...nounResult, ...vectorResult].map((res) => ({
+            covers: results.map((res) => ({
                 ...res,
                 cover_id: Number(res.cover_id),
             })),
