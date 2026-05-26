@@ -200,7 +200,7 @@ export const search = async (reqCtx : RequestContext) => {
 
     const vectorResult = await vectorSearch(body.vector);
     const nounResult = await nounSearch(body.ner, hardcoverKey);
-    const results = mergeResults(nounResult, vectorResult, 0.4, 0.6, 60, constants.results_limit);
+    const results = mergeResults(nounResult, vectorResult, 0.5, 0.5, 60, constants.results_limit);
 
 
     return {
