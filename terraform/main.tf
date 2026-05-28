@@ -1,7 +1,8 @@
 locals {
-  lambda_role_arn = data.terraform_remote_state.bic_infra.outputs.lambda_function_role_arn
-  api_gw_arn      = data.terraform_remote_state.bic_infra.outputs.api_gw_arn
-  s3_db_uri       = data.terraform_remote_state.bic_infra.outputs.s3_db_uri
+  lambda_role_arn       = data.terraform_remote_state.bic_infra.outputs.lambda_function_role_arn
+  api_gw_arn            = data.terraform_remote_state.bic_infra.outputs.api_gw_arn
+  s3_db_uri             = data.terraform_remote_state.bic_infra.outputs.s3_db_uri
+  hardcover_secret_name = data.terraform_remote_state.bic_infra.outputs.hardcover_secret_name
 }
 
 resource "aws_lambda_function" "search_function" {
@@ -24,7 +25,7 @@ resource "aws_lambda_function" "search_function" {
     variables = {
       ENVIRONMENT           = var.environment
       DB_URI                = local.s3_db_uri
-      HARDCOVER_SECRET_NAME = var.hardcover_secret_name
+      HARDCOVER_SECRET_NAME = local.hardcover_secret_name
     }
   }
 }
