@@ -79,12 +79,22 @@ export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) =>
         return keywordRes;
     }
 
-    const keywordQuery = nerPairs.reduce((acc, result) => acc + result.text + " ", "").trim();
-    const fieldWeights = constants.keyword_field_weights.join(",");
+    const nerDetails = nerPairs.reduce((acc, result) => {
+        acc.keyword_query += result.text + " ";
+        acc.hasAuthors ||= result.label === "Author_Name";
+        acc.hasTitles ||= result.label === "Book_Title_Only";
+        return acc;
+    }, {
+        keyword_query: "",
+        hasAuthors: false,
+        hasTitles: false,
+    });
+    const rawWeights = [nerDetails.hasTitles ? 5 : 1, nerDetails.hasTitles ? 3 : 1, nerDetails.hasAuthors ? 5 : 1, 1];
+    const fieldWeights = rawWeights.join(",");
     const GET_KEYWORD_RESULTS: TypedDocumentNode<TitleAuthorSearch, TitleAuthorSearchVariables> = gql`
         query TitleAuthorSearch {
             search(
-                query: "${keywordQuery}",
+                query: "${nerDetails.keyword_query}",
                 query_type: "Book",
                 per_page: ${constants.keyword_query_limit},
                 page: 1,
@@ -198,8 +208,10 @@ export const search = async (reqCtx : RequestContext) => {
 
     const hardcoverKey = reqCtx.get("hardcover_key") as string;
 
-    const vectorResult = await vectorSearch(body.vector);
-    const nounResult = await nounSearch(body.ner, hardcoverKey);
+    const [nounResult, vectorResult] = await Promise.all([
+        nounSearch(body.ner, hardcoverKey),
+        vectorSearch(body.vector),
+    ])
     const results = mergeResults(nounResult, vectorResult, 0.5, 0.5, 60, constants.results_limit);
 
 
