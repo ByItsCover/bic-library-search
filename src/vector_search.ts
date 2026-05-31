@@ -60,7 +60,7 @@ export const vectorSearch = async ( embedding: number[]) => {
     }
 
     let tableRes: CoverResult[] = await table.search(queryVector)
-        .select(["cover_id", "isbn_13", "cover_url", "_distance"])
+        .select(["cover_id", "book_id", "isbn_13", "cover_url", "_distance"])
         .limit(constants.vector_query_limit)
         .toArray();
     console.table(tableRes);
