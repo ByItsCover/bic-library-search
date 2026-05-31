@@ -141,6 +141,7 @@ export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) =>
         if (coverValue === null && edition.image !== null && edition.image.url !== null && edition.isbn_13 !== null) {
             let newCover: CoverResult = {
                 cover_id: edition.id,
+                book_id: edition.book_id,
                 isbn_13: edition.isbn_13,
                 cover_url: edition.image.url,
                 _distance: null
@@ -160,37 +161,37 @@ const rrfScore = (rank: number, weight: number, k: number) => {
 }
 
 const mergeResults = (
-    ner: CoverResult[],
     vector: CoverResult[],
+    ner: CoverResult[],
     nerWeight: number,
     vectorWeight: number,
     k: number,
     limit: number
 ) => {
     // Map from id to { item, score }
-    const bucket = new Map<BigInt, { item: CoverResult; score: number }>();
-
-    // Add fuzzy scores
-    ner.forEach((item, idx) => {
-        const rank = idx + 1;
-        const score = rrfScore(rank, nerWeight, k);
-        const prev = bucket.get(item.cover_id);
-        if (prev !== undefined) {
-            prev.score += score;
-        } else {
-            bucket.set(item.cover_id, { item, score });
-        }
-    });
+    const bucket = new Map<number, { item: CoverResult; score: number }>();
 
     // Add semantic scores
     vector.forEach((item, idx) => {
         const rank = idx + 1;
         const score = rrfScore(rank, vectorWeight, k);
-        const prev = bucket.get(item.cover_id);
+        const prev = bucket.get(item.book_id);
         if (prev !== undefined) {
             prev.score += score;
         } else {
-            bucket.set(item.cover_id, { item, score });
+            bucket.set(item.book_id, { item, score });
+        }
+    });
+
+    // Add fuzzy scores
+    ner.forEach((item, idx) => {
+        const rank = idx + 1;
+        const score = rrfScore(rank, nerWeight, k);
+        const prev = bucket.get(item.book_id);
+        if (prev !== undefined) {
+            prev.score += score;
+        } else {
+            bucket.set(item.book_id, { item, score });
         }
     });
 
@@ -208,11 +209,11 @@ export const search = async (reqCtx : RequestContext) => {
 
     const hardcoverKey = reqCtx.get("hardcover_key") as string;
 
-    const [nounResult, vectorResult] = await Promise.all([
-        nounSearch(body.ner, hardcoverKey),
+    const [vectorResult, nounResult] = await Promise.all([
         vectorSearch(body.vector),
+        nounSearch(body.ner, hardcoverKey),
     ])
-    const results = mergeResults(nounResult, vectorResult, 0.5, 0.5, 60, constants.results_limit);
+    const results = mergeResults(vectorResult, nounResult, 0.5, 0.5, 60, constants.results_limit);
 
 
     return {
