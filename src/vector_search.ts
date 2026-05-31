@@ -141,7 +141,7 @@ export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) =>
         if (coverValue === null && edition.image !== null && edition.image.url !== null && edition.isbn_13 !== null) {
             let newCover: CoverResult = {
                 cover_id: edition.id,
-                book_id: edition.book_id,
+                book_id: BigInt(edition.book_id),
                 isbn_13: edition.isbn_13,
                 cover_url: edition.image.url,
                 _distance: null
@@ -169,7 +169,7 @@ const mergeResults = (
     limit: number
 ) => {
     // Map from id to { item, score }
-    const bucket = new Map<number, { item: CoverResult; score: number }>();
+    const bucket = new Map<BigInt, { item: CoverResult; score: number }>();
 
     // Add semantic scores
     vector.forEach((item, idx) => {
