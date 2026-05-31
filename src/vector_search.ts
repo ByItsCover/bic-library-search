@@ -222,6 +222,7 @@ export const search = async (reqCtx : RequestContext) => {
             covers: results.map((res) => ({
                 ...res,
                 cover_id: Number(res.cover_id),
+                book_id: Number(res.book_id),
             })),
         }),
     };
