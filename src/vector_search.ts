@@ -5,8 +5,8 @@ import {BatchHttpLink} from "@apollo/client/link/batch-http";
 import { logger } from "./logger";
 import { constants } from "./constants";
 import {
-    CoverResult, EditionIdRetrieval,
-    EditionIdRetrievalVariables, NerResult, TitleAuthorSearch, TitleAuthorSearchVariables
+    CoverResult, BookIdRetrieval,
+    BookIdRetrievalVariables, NerResult, TitleAuthorSearch, TitleAuthorSearchVariables
 } from "./types";
 
 
@@ -112,41 +112,43 @@ export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) =>
     }
 
     const idsString = idData.search.ids.join(",");
-    const GET_EDITION_RESULTS: TypedDocumentNode<EditionIdRetrieval, EditionIdRetrievalVariables> = gql`
-        query LordOfTheRingsBooks {
-            editions(
+    const GET_BOOK_RESULTS: TypedDocumentNode<BookIdRetrieval, BookIdRetrievalVariables> = gql`
+        query BookIdRetrieval {
+            books(
                 where: {
-                    book_id: {_in: [${idsString}]}
+                    id: {_in: [${idsString}]}
                 }
-                order_by: [{book_id: desc}, {score: desc}]
+                order_by: [{default_cover_edition: {score: desc}}]
             ) {
                 id
-                book_id
                 title
-                isbn_13
-                image {
-                    url
+                default_cover_edition {
+                    id
+                    isbn_13
+                    image {
+                        url
+                    }
                 }
             }
         }
     `;
-    const { data: bookData } = await client.query({query: GET_EDITION_RESULTS});
+    const { data: bookData } = await client.query({query: GET_BOOK_RESULTS});
     if (bookData === undefined) {
         throw new Error("NER Book Edition results are null (likely api call fail)");
     }
 
-    const idCoverMap: Map<number, CoverResult | null> = new Map(idData.search.ids.map(id => [id, null]));
-    bookData.editions.forEach((edition) => {
-        let coverValue = idCoverMap.get(edition.book_id);
-        if (coverValue === null && edition.image !== null && edition.image.url !== null && edition.isbn_13 !== null) {
+    const idCoverMap: Map<BigInt, CoverResult | null> = new Map(idData.search.ids.map(id => [id, null]));
+    bookData.books.forEach((book) => {
+        let coverValue = idCoverMap.get(book.id);
+        if (coverValue === null && book.default_cover_edition !== null && book.default_cover_edition.image !== null && book.default_cover_edition.image.url !== null && book.default_cover_edition.isbn_13 !== null) {
             let newCover: CoverResult = {
-                cover_id: edition.id,
-                book_id: BigInt(edition.book_id),
-                isbn_13: edition.isbn_13,
-                cover_url: edition.image.url,
+                cover_id: book.default_cover_edition.id,
+                book_id: book.id,
+                isbn_13: book.default_cover_edition.isbn_13,
+                cover_url: book.default_cover_edition.image.url,
                 _distance: null
             };
-            idCoverMap.set(edition.book_id, newCover);
+            idCoverMap.set(book.id, newCover);
         }
     });
     logger.info('Printing NER api results);');
