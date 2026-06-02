@@ -171,17 +171,17 @@ const mergeResults = (
     limit: number
 ) => {
     // Map from id to { item, score }
-    const bucket = new Map<bigint, { item: CoverResult; score: number }>();
+    const bucket = new Map<string, { item: CoverResult; score: number }>();
 
     // Add semantic scores
     vector.forEach((item, idx) => {
         const rank = idx + 1;
         const score = rrfScore(rank, vectorWeight, k);
-        const prev = bucket.get(item.book_id);
+        const prev = bucket.get(String(item.book_id));
         if (prev !== undefined) {
             prev.score += score;
         } else {
-            bucket.set(item.book_id, { item, score });
+            bucket.set(String(item.book_id), { item, score });
         }
     });
 
@@ -189,11 +189,11 @@ const mergeResults = (
     ner.forEach((item, idx) => {
         const rank = idx + 1;
         const score = rrfScore(rank, nerWeight, k);
-        const prev = bucket.get(item.book_id);
+        const prev = bucket.get(String(item.book_id));
         if (prev !== undefined) {
             prev.score += score;
         } else {
-            bucket.set(item.book_id, { item, score });
+            bucket.set(String(item.book_id), { item, score });
         }
     });
 
