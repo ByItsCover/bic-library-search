@@ -137,7 +137,7 @@ export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) =>
         throw new Error("NER Book Edition results are null (likely api call fail)");
     }
 
-    const idCoverMap: Map<BigInt, CoverResult | null> = new Map(idData.search.ids.map(id => [id, null]));
+    const idCoverMap: Map<bigint, CoverResult | null> = new Map(idData.search.ids.map(id => [id, null]));
     bookData.books.forEach((book) => {
         let coverValue = idCoverMap.get(book.id);
         if (coverValue === null && book.default_cover_edition !== null && book.default_cover_edition.image !== null && book.default_cover_edition.image.url !== null && book.default_cover_edition.isbn_13 !== null) {
@@ -171,7 +171,7 @@ const mergeResults = (
     limit: number
 ) => {
     // Map from id to { item, score }
-    const bucket = new Map<BigInt, { item: CoverResult; score: number }>();
+    const bucket = new Map<bigint, { item: CoverResult; score: number }>();
 
     // Add semantic scores
     vector.forEach((item, idx) => {
