@@ -215,7 +215,7 @@ export const search = async (reqCtx : RequestContext) => {
         vectorSearch(body.vector),
         nounSearch(body.ner, hardcoverKey),
     ])
-    const results = mergeResults(vectorResult, nounResult, 0.5, 0.5, 60, constants.results_limit);
+    const results = mergeResults(vectorResult, nounResult, 0.51, 0.49, 60, constants.results_limit);
 
 
     return {
