@@ -15,25 +15,28 @@ export type NerResult = {
 export type TitleAuthorSearch = {
     search: {
         __typename: "SearchResult";
-        ids: number[];
+        ids: BigInt[];
     }
 
 };
 
 export type TitleAuthorSearchVariables = Record<string, never>;
 
-export type EditionIdRetrieval = {
-    editions: {
-        __typename: "Editions";
+export type BookIdRetrieval = {
+    books: {
+        __typename: "Books";
         id: BigInt;
-        book_id: number;
         title: string | null;
-        isbn_13: string | null;
-        image: {
-            __typename: "CoverImage";
-            url: string | null;
+        default_cover_edition: {
+            __typename: "DefaultCoverEdition";
+            id: BigInt;
+            isbn_13: string | null;
+            image: {
+                __typename: "CoverImage";
+                url: string | null;
+            } | null;
         } | null;
     }[];
 };
 
-export type EditionIdRetrievalVariables = Record<string, never>;
+export type BookIdRetrievalVariables = Record<string, never>;
