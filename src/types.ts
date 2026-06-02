@@ -1,6 +1,6 @@
 export type CoverResult = {
-    cover_id: BigInt,
-    book_id: BigInt,
+    cover_id: bigint,
+    book_id: bigint,
     isbn_13: string,
     cover_url: string,
     _distance: number | null,
@@ -15,7 +15,7 @@ export type NerResult = {
 export type TitleAuthorSearch = {
     search: {
         __typename: "SearchResult";
-        ids: BigInt[];
+        ids: bigint[];
     }
 
 };
@@ -25,11 +25,11 @@ export type TitleAuthorSearchVariables = Record<string, never>;
 export type BookIdRetrieval = {
     books: {
         __typename: "Books";
-        id: BigInt;
+        id: bigint;
         title: string | null;
         default_cover_edition: {
             __typename: "DefaultCoverEdition";
-            id: BigInt;
+            id: bigint;
             isbn_13: string | null;
             image: {
                 __typename: "CoverImage";
