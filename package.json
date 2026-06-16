@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.161",
-    "esbuild": "^0.27.4",
+    "esbuild": "^0.28.1",
     "typescript": "^6.0.2"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "@aws-lambda-powertools/logger": "^2.32.0",
     "@aws-lambda-powertools/parameters": "^2.33.1",
     "@aws-sdk/client-secrets-manager": "^3.1053.0",
+    "@aws-sdk/client-sqs": "^3.1069.0",
     "@lancedb/lancedb": "^0.27.1",
     "aws-lambda-ric": "^4.0.2",
     "glob": "^13.0.6"
