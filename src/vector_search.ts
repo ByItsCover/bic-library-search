@@ -169,22 +169,13 @@ const mergeResults = (
     ];
 }
 
-export const search = async (reqCtx : RequestContext) => {
-    const body: {vector: number[], ner: NerResult[]} = await reqCtx.req.json();
-    logger.info('Printing body of request');
-    logger.info(JSON.stringify(body));
+const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient) => {
+    if (nerItems.length === 0) {
+        logger.info("No new books");
+        return;
+    }
 
-    const table = reqCtx.get("lance_table") as lancedb.Table;
-    const hardcoverClient = reqCtx.get("hardcover_client") as ApolloClient;
-    const sqsClient = reqCtx.get("sqs_client") as SQSClient;
-
-    const [vectorResult, nounResult] = await Promise.all([
-        vectorSearch(body.vector, table),
-        nounSearch(body.ner, hardcoverClient)
-    ])
-    const [searchResults, newNerItems] = mergeResults(vectorResult, nounResult, 0.51, 0.49, 60, constants.results_limit);
-
-    const messages = newNerItems.map((item): SendMessageBatchRequestEntry => ({
+    const messages = nerItems.map((item): SendMessageBatchRequestEntry => ({
         Id: `${String(item.cover_id)}-${item.isbn_13}`,
         MessageBody: item.cover_url,
         MessageAttributes: {
@@ -211,6 +202,23 @@ export const search = async (reqCtx : RequestContext) => {
     const successfulCount = batchResponse.Successful !== undefined ?
         batchResponse.Successful.length : 0;
     logger.info(`Number of embedding uploaded: ${successfulCount}`);
+}
+
+export const search = async (reqCtx : RequestContext) => {
+    const body: {vector: number[], ner: NerResult[]} = await reqCtx.req.json();
+    logger.info('Printing body of request');
+    logger.info(JSON.stringify(body));
+
+    const table = reqCtx.get("lance_table") as lancedb.Table;
+    const hardcoverClient = reqCtx.get("hardcover_client") as ApolloClient;
+    const sqsClient = reqCtx.get("sqs_client") as SQSClient;
+
+    const [vectorResult, nounResult] = await Promise.all([
+        vectorSearch(body.vector, table),
+        nounSearch(body.ner, hardcoverClient)
+    ])
+    const [searchResults, newNerItems] = mergeResults(vectorResult, nounResult, 0.51, 0.49, 60, constants.results_limit);
+    await uploadBooks(newNerItems, sqsClient);
 
     return {
         statusCode: 200,
