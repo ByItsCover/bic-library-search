@@ -5,38 +5,13 @@ import {
     SendMessageBatchRequestEntry
 } from "@aws-sdk/client-sqs";
 import * as lancedb from "@lancedb/lancedb"
-import { ApolloClient, gql, InMemoryCache, TypedDocumentNode } from "@apollo/client";
-import {BatchHttpLink} from "@apollo/client/link/batch-http";
+import { ApolloClient, gql, TypedDocumentNode } from "@apollo/client";
 import { logger } from "./logger";
 import { constants } from "./constants";
 import {
     CoverResult, BookIdRetrieval,
     BookIdRetrievalVariables, NerResult, TitleAuthorSearch, TitleAuthorSearchVariables
 } from "./types";
-
-
-let table: lancedb.Table | null = null;
-let client: ApolloClient | null = null;
-
-const loadTable = async () => {
-    const uri = process.env.DB_URI;
-    const db = await lancedb.connect(uri);
-    return await db.openTable(constants.db_table_name);
-}
-
-const loadClient = (hardcoverApiKey: string) => {
-    const batchLink = new BatchHttpLink({
-        uri: constants.hardcover_url,
-        headers: {
-            authorization: `Bearer ${hardcoverApiKey}`,
-        },
-    });
-
-    return new ApolloClient({
-        link: batchLink,
-        cache: new InMemoryCache(),
-    });
-}
 
 const normalize = (arr: number[]) => {
     const norm = Math.sqrt(arr.reduce((sum, val) => sum + val**2, 0));
@@ -46,23 +21,8 @@ const normalize = (arr: number[]) => {
     return arr.map(val => val / norm);
 }
 
-export const vectorSearch = async ( embedding: number[]) => {
-    let tablePromise: Promise<lancedb.Table> | null = null;
-    if (table === null) {
-        logger.info('Table starting load');
-        tablePromise = loadTable();
-    }
-
+export const vectorSearch = async ( embedding: number[], table: lancedb.Table) => {
     const queryVector = normalize(embedding);
-
-    if (table === null) {
-        if (tablePromise === null) {
-            throw new Error("TablePromise is null (should never happen)");
-        }
-        table = await tablePromise;
-        table.search(queryVector);
-        logger.info('Table loaded');
-    }
 
     let tableRes: CoverResult[] = await table.search(queryVector)
         .select(["cover_id", "book_id", "isbn_13", "cover_url", "_distance"])
@@ -73,12 +33,7 @@ export const vectorSearch = async ( embedding: number[]) => {
     return tableRes;
 }
 
-export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) => {
-    if (client === null) {
-        logger.info('GQL Client starting load');
-        client = loadClient(hardcoverKey);
-    }
-
+export const nounSearch = async (nerPairs: NerResult[], hardcoverClient: ApolloClient) => {
     let keywordRes: CoverResult[] = [];
     if (nerPairs.length === 0) {
         return keywordRes;
@@ -111,7 +66,7 @@ export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) =>
             }
         }
     `;
-    const { data: idData } = await client.query({query: GET_KEYWORD_RESULTS});
+    const { data: idData } = await hardcoverClient.query({query: GET_KEYWORD_RESULTS});
     if (idData === undefined || idData.search.ids.length === 0) {
         return keywordRes;
     }
@@ -137,7 +92,7 @@ export const nounSearch = async (nerPairs: NerResult[], hardcoverKey: string) =>
             }
         }
     `;
-    const { data: bookData } = await client.query({query: GET_BOOK_RESULTS});
+    const { data: bookData } = await hardcoverClient.query({query: GET_BOOK_RESULTS});
     if (bookData === undefined) {
         throw new Error("NER Book Edition results are null (likely api call fail)");
     }
@@ -219,12 +174,13 @@ export const search = async (reqCtx : RequestContext) => {
     logger.info('Printing body of request');
     logger.info(JSON.stringify(body));
 
-    const hardcoverKey = reqCtx.get("hardcover_key") as string;
+    const table = reqCtx.get("lance_table") as lancedb.Table;
+    const hardcoverClient = reqCtx.get("hardcover_client") as ApolloClient;
     const sqsClient = reqCtx.get("sqs_client") as SQSClient;
 
     const [vectorResult, nounResult] = await Promise.all([
-        vectorSearch(body.vector),
-        nounSearch(body.ner, hardcoverKey),
+        vectorSearch(body.vector, table),
+        nounSearch(body.ner, hardcoverClient)
     ])
     const [searchResults, newNerItems] = mergeResults(vectorResult, nounResult, 0.51, 0.49, 60, constants.results_limit);
 
