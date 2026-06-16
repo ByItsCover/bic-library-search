@@ -177,6 +177,8 @@ const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkS
         return;
     }
 
+    logger.info(`"Number of embeddings to upload: ${nerItems.length}`);
+
     let successfulCount = 0;
     const failureResponses:  BatchResultErrorEntry[] = [];
 
