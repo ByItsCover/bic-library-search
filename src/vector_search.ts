@@ -1,4 +1,9 @@
 import { RequestContext } from "@aws-lambda-powertools/event-handler/types";
+import {
+    SQSClient,
+    SendMessageBatchCommand,
+    SendMessageBatchRequestEntry
+} from "@aws-sdk/client-sqs";
 import * as lancedb from "@lancedb/lancedb"
 import { ApolloClient, gql, InMemoryCache, TypedDocumentNode } from "@apollo/client";
 import {BatchHttpLink} from "@apollo/client/link/batch-http";
@@ -172,6 +177,7 @@ const mergeResults = (
 ) => {
     // Map from id to { item, score }
     const bucket = new Map<string, { item: CoverResult; score: number }>();
+    const newNerItems: CoverResult[] = [];
 
     // Add semantic scores
     vector.forEach((item, idx) => {
@@ -194,14 +200,18 @@ const mergeResults = (
             prev.score += score;
         } else {
             bucket.set(String(item.book_id), { item, score });
+            newNerItems.push(item);
         }
     });
 
     // Convert to array and sort by score descending
-    return [...bucket.values()]
-        .sort((a, b) => b.score - a.score)
-        .slice(0, limit)
-        .map(entry => entry.item);
+    return [
+        [...bucket.values()]
+            .sort((a, b) => b.score - a.score)
+            .slice(0, limit)
+            .map(entry => entry.item),
+        newNerItems
+    ];
 }
 
 export const search = async (reqCtx : RequestContext) => {
@@ -210,18 +220,46 @@ export const search = async (reqCtx : RequestContext) => {
     logger.info(JSON.stringify(body));
 
     const hardcoverKey = reqCtx.get("hardcover_key") as string;
+    const sqsClient = reqCtx.get("sqs_client") as SQSClient;
 
     const [vectorResult, nounResult] = await Promise.all([
         vectorSearch(body.vector),
         nounSearch(body.ner, hardcoverKey),
     ])
-    const results = mergeResults(vectorResult, nounResult, 0.51, 0.49, 60, constants.results_limit);
+    const [searchResults, newNerItems] = mergeResults(vectorResult, nounResult, 0.51, 0.49, 60, constants.results_limit);
 
+    const messages = newNerItems.map((item): SendMessageBatchRequestEntry => ({
+        Id: `${String(item.cover_id)}-${item.isbn_13}`,
+        MessageBody: item.cover_url,
+        MessageAttributes: {
+            "cover_id": {
+                DataType: "Number",
+                StringValue: String(item.cover_id),
+            },
+            "book_id": {
+                DataType: "Number",
+                StringValue: String(item.book_id)
+            },
+            "isbn_13": {
+                DataType: "String",
+                StringValue: item.isbn_13
+            }
+        }
+    }));
+    const batchCommand = new SendMessageBatchCommand({
+        QueueUrl: process.env.SQS_URL,
+        Entries: messages
+    });
+
+    const batchResponse = await sqsClient.send(batchCommand);
+    const successfulCount = batchResponse.Successful !== undefined ?
+        batchResponse.Successful.length : 0;
+    logger.info(`Number of embedding uploaded: ${successfulCount}`);
 
     return {
         statusCode: 200,
         body: JSON.stringify({
-            covers: results.map((res) => ({
+            covers: searchResults.map((res) => ({
                 ...res,
                 cover_id: Number(res.cover_id),
                 book_id: Number(res.book_id),

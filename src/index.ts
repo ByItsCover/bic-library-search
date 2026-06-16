@@ -1,6 +1,7 @@
 import { Router } from '@aws-lambda-powertools/event-handler/http';
 import type { Middleware } from "@aws-lambda-powertools/event-handler/types";
 import { getSecret } from "@aws-lambda-powertools/parameters/secrets";
+import { SQSClient } from "@aws-sdk/client-sqs";
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
 import { logger } from "./logger";
 import { health } from "./healthcheck";
@@ -14,8 +15,15 @@ const secretsMiddleware: Middleware = async ({ reqCtx, next }) => {
     await next();
 };
 
+const sqsClientMiddleware: Middleware = async ({ reqCtx, next }) => {
+    const config = {};
+    const client = new SQSClient(config);
+    reqCtx.set('sqs_client', client);
+    await next();
+};
+
 app.get('/', health);
-app.post('/search', [secretsMiddleware], search);
+app.post('/search', [secretsMiddleware, sqsClientMiddleware], search);
 
 export const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
     logger.info(`Event: ${JSON.stringify(event, null, 2)}`);

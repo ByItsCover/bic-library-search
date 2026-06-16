@@ -6,6 +6,7 @@ declare global {
             DB_URI: string;
             ENVIRONMENT: "test" | "dev" | "prod";
             HARDCOVER_SECRET_NAME: string;
+            SQS_URL: string;
         }
     }
 }
