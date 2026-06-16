@@ -2,7 +2,7 @@ import { RequestContext } from "@aws-lambda-powertools/event-handler/types";
 import {
     SQSClient,
     SendMessageBatchCommand,
-    SendMessageBatchRequestEntry
+    SendMessageBatchRequestEntry, BatchResultErrorEntry
 } from "@aws-sdk/client-sqs";
 import * as lancedb from "@lancedb/lancedb"
 import { ApolloClient, gql, TypedDocumentNode } from "@apollo/client";
@@ -177,7 +177,10 @@ const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkS
         return;
     }
 
+    logger.info(`"Number of embeddings to upload: ${nerItems.length}`);
+
     let successfulCount = 0;
+    const failureResponses:  BatchResultErrorEntry[] = [];
 
     Array(Math.ceil(nerItems.length / 10)).fill(0).map(async (_, i) => {
         const nerChunk = nerItems.slice(i * chunkSize, (i+1) * chunkSize);
@@ -209,9 +212,13 @@ const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkS
         if (batchResponse.Successful !== undefined) {
             successfulCount += batchResponse.Successful.length;
         }
+        if (batchResponse.Failed !== undefined) {
+            failureResponses.push(...batchResponse.Failed);
+        }
     });
 
     logger.info(`Number of embedding uploaded: ${successfulCount}`);
+    logger.info("Failure responses:", {failed: failureResponses});
 }
 
 export const search = async (reqCtx : RequestContext) => {
