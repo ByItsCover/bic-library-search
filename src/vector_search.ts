@@ -169,38 +169,46 @@ const mergeResults = (
     ];
 }
 
-const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient) => {
+const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkSize = 10) => {
     if (nerItems.length === 0) {
         logger.info("No new books");
         return;
     }
 
-    const messages = nerItems.map((item): SendMessageBatchRequestEntry => ({
-        Id: `${String(item.cover_id)}-${item.isbn_13}`,
-        MessageBody: item.cover_url,
-        MessageAttributes: {
-            "cover_id": {
-                DataType: "Number",
-                StringValue: String(item.cover_id),
-            },
-            "book_id": {
-                DataType: "Number",
-                StringValue: String(item.book_id)
-            },
-            "isbn_13": {
-                DataType: "String",
-                StringValue: item.isbn_13
+    let successfulCount = 0;
+
+    Array(Math.ceil(nerItems.length / 10)).fill(0).map(async (_, i) => {
+        const nerChunk = nerItems.slice(i * chunkSize, (i+1) + chunkSize);
+
+        const messages = nerChunk.map((item): SendMessageBatchRequestEntry => ({
+            Id: `${String(item.cover_id)}-${item.isbn_13}`,
+            MessageBody: item.cover_url,
+            MessageAttributes: {
+                "cover_id": {
+                    DataType: "Number",
+                    StringValue: String(item.cover_id),
+                },
+                "book_id": {
+                    DataType: "Number",
+                    StringValue: String(item.book_id)
+                },
+                "isbn_13": {
+                    DataType: "String",
+                    StringValue: item.isbn_13
+                }
             }
+        }));
+        const batchCommand = new SendMessageBatchCommand({
+            QueueUrl: process.env.SQS_URL,
+            Entries: messages
+        });
+
+        const batchResponse = await sqsClient.send(batchCommand);
+        if (batchResponse.Successful !== undefined) {
+            successfulCount += batchResponse.Successful.length;
         }
-    }));
-    const batchCommand = new SendMessageBatchCommand({
-        QueueUrl: process.env.SQS_URL,
-        Entries: messages
     });
 
-    const batchResponse = await sqsClient.send(batchCommand);
-    const successfulCount = batchResponse.Successful !== undefined ?
-        batchResponse.Successful.length : 0;
     logger.info(`Number of embedding uploaded: ${successfulCount}`);
 }
 
