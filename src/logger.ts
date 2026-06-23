@@ -1,3 +1,5 @@
 import { Logger } from '@aws-lambda-powertools/logger';
 
-export const logger = new Logger({ serviceName: 'librarySearch' });
+const logger = new Logger({ serviceName: 'librarySearch' });
+
+export default logger;
