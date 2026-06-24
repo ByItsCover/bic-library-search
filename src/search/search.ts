@@ -14,8 +14,8 @@ import { uploadBooks } from "./sqs";
 const mergeResults = (
     vector: CoverResult[],
     keyword: CoverResult[],
-    nerWeight: number,
     vectorWeight: number,
+    keywordWeight: number,
     k: number,
     limit: number
 ) => {
@@ -38,7 +38,7 @@ const mergeResults = (
     // Add fuzzy scores
     keyword.forEach((item, idx) => {
         const rank = idx + 1;
-        const score = rrfScore(rank, nerWeight, k);
+        const score = rrfScore(rank, keywordWeight, k);
         const prev = bucket.get(String(item.book_id));
         if (prev !== undefined) {
             prev.score += score;
