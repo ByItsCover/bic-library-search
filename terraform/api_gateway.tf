@@ -9,6 +9,7 @@ resource "aws_apigatewayv2_integration" "lambda_handler" {
   integration_type       = "AWS_PROXY"
   integration_uri        = aws_lambda_function.search_function.invoke_arn
   payload_format_version = "2.0"
+  timeout_milliseconds   = var.api_gateway_timeout
 
   lifecycle {
     create_before_destroy = true
