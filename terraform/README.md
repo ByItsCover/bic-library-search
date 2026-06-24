@@ -34,6 +34,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_api_gateway_timeout"></a> [api\_gateway\_timeout](#input\_api\_gateway\_timeout) | API Gateway timeout in milliseconds | `number` | `29000` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region | `string` | n/a | yes |
 | <a name="input_bic_infra_workspace"></a> [bic\_infra\_workspace](#input\_bic\_infra\_workspace) | Terraform Cloud Workspace BIC-Infra name | `string` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | Deployment Environment | `string` | n/a | yes |

@@ -26,9 +26,9 @@ variable "bic_infra_workspace" {
 # API
 
 variable "api_gateway_timeout" {
-  type = number
+  type        = number
   description = "API Gateway timeout in milliseconds"
-  default = 29000
+  default     = 29000
 }
 
 # Lambda
