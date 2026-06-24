@@ -23,6 +23,14 @@ variable "bic_infra_workspace" {
   description = "Terraform Cloud Workspace BIC-Infra name"
 }
 
+# API
+
+variable "api_gateway_timeout" {
+  type = number
+  description = "API Gateway timeout in milliseconds"
+  default = 29000
+}
+
 # Lambda
 
 variable "lambda_name" {
