@@ -5,7 +5,7 @@ ARG FUNCTION_DIR="/var/task"
 
 FROM node:${NODE_VERSION}-alpine AS build
 
-RUN apk update && apk install \
+RUN apk update && apk add \
     g++ \
     make \
     cmake \
