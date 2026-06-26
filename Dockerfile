@@ -26,6 +26,7 @@ RUN npm install
 RUN npm run typecheck
 RUN npm run build -- --outdir=${FUNCTION_DIR}
 RUN npm install --omit=dev --omit=optional --prefix ${FUNCTION_DIR}
+RUN npm install @lancedb/lancedb-linux-x64-musl@latest --no-save --prefix ${FUNCTION_DIR}
 
 # Deploy Stage
 
