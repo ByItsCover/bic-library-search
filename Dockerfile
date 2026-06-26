@@ -3,15 +3,16 @@
 ARG NODE_VERSION=24
 ARG FUNCTION_DIR="/var/task"
 
-FROM node:${NODE_VERSION}-alpine AS build
+FROM node:${NODE_VERSION}-slim AS build
 
-RUN apk update && apk add \
+RUN apt-get update && apt-get install -y \
     g++ \
     make \
     cmake \
     unzip \
+    xz-utils \
     python3 \
-    elfutils-dev
+    libcurl4-openssl-dev
 
 ARG FUNCTION_DIR
 
@@ -25,8 +26,7 @@ COPY package.json ${FUNCTION_DIR}
 RUN npm install
 RUN npm run typecheck
 RUN npm run build -- --outdir=${FUNCTION_DIR}
-RUN npm install --omit=dev --omit=optional --prefix ${FUNCTION_DIR}
-RUN npm install @lancedb/lancedb-linux-x64-musl@latest --no-save --prefix ${FUNCTION_DIR}
+RUN npm install --omit=dev --prefix ${FUNCTION_DIR}
 
 # Deploy Stage
 
