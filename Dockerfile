@@ -30,7 +30,7 @@ RUN npm install --omit=dev --prefix ${FUNCTION_DIR}
 
 # Deploy Stage
 
-FROM node:${NODE_VERSION}-slim AS deploy
+FROM node:${NODE_VERSION}-alpine AS deploy
 
 ARG FUNCTION_DIR
 
