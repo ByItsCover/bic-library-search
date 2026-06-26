@@ -10,7 +10,8 @@ RUN apk update && apk add \
     make \
     cmake \
     unzip \
-    python3
+    python3 \
+    elfutils-dev
 
 ARG FUNCTION_DIR
 
