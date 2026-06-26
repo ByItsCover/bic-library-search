@@ -10,9 +10,8 @@ RUN apk update && apk add \
     make \
     cmake \
     unzip \
-    xz-utils \
     python3 \
-    libcurl4-openssl-dev
+    libexecinfo-dev
 
 ARG FUNCTION_DIR
 
