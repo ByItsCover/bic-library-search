@@ -3,9 +3,9 @@
 ARG NODE_VERSION=24
 ARG FUNCTION_DIR="/var/task"
 
-FROM node:${NODE_VERSION}-slim AS build
+FROM node:${NODE_VERSION}-alpine AS build
 
-RUN apt-get update && apt-get install -y \
+RUN apk update && apk install \
     g++ \
     make \
     cmake \
