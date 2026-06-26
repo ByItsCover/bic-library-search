@@ -10,8 +10,7 @@ RUN apk update && apk add \
     make \
     cmake \
     unzip \
-    python3 \
-    libexecinfo-dev
+    python3
 
 ARG FUNCTION_DIR
 
