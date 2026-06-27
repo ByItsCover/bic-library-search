@@ -22,15 +22,12 @@
     "@aws-lambda-powertools/parameters": "^2.33.1",
     "@aws-sdk/client-secrets-manager": "^3.1053.0",
     "@aws-sdk/client-sqs": "^3.1069.0",
-    "@lancedb/lancedb": "^0.30.0",
+    "@lancedb/lancedb": "^0.27.1",
     "aws-lambda-ric": "^4.0.2",
     "glob": "^13.0.6"
   },
   "allowScripts": {
     "esbuild@0.28.1": true,
     "aws-lambda-ric@4.0.2": true
-  },
-  "optionalDependencies": {
-    "@lancedb/lancedb-linux-x64-musl": "^0.30.0"
   }
 }
