@@ -3,16 +3,15 @@
 ARG NODE_VERSION=24
 ARG FUNCTION_DIR="/var/task"
 
-FROM node:${NODE_VERSION}-slim AS build
+FROM node:${NODE_VERSION}-alpine AS build
 
-RUN apt-get update && apt-get install -y \
-        g++ \
-        make \
-        cmake \
-        unzip \
-        xz-utils \
-        python3 \
-        libcurl4-openssl-dev
+RUN apk update && apk add \
+    g++ \
+    make \
+    cmake \
+    unzip \
+    python3 \
+    elfutils-dev
 
 ARG FUNCTION_DIR
 
@@ -30,12 +29,7 @@ RUN npm install --omit=dev --prefix ${FUNCTION_DIR}
 
 # Deploy Stage
 
-FROM node:${NODE_VERSION}-slim AS deploy
-
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+FROM node:${NODE_VERSION}-alpine AS deploy
 
 ARG FUNCTION_DIR
 
