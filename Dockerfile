@@ -5,9 +5,7 @@ ARG FUNCTION_DIR="/var/task"
 
 FROM node:${NODE_VERSION}-slim AS build
 
-RUN apt-get update && \
-    apt-get purge -y --auto-remove perl  \
-    && apt-get install -y \
+RUN apt-get update && apt-get install -y \
         g++ \
         make \
         cmake \
@@ -33,6 +31,11 @@ RUN npm install --omit=dev --prefix ${FUNCTION_DIR}
 # Deploy Stage
 
 FROM node:${NODE_VERSION}-slim AS deploy
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 ARG FUNCTION_DIR
 
