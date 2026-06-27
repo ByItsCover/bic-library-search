@@ -25,8 +25,7 @@ COPY package.json ${FUNCTION_DIR}
 RUN npm install
 RUN npm run typecheck
 RUN npm run build -- --outdir=${FUNCTION_DIR}
-RUN npm install --omit=dev --prefix ${FUNCTION_DIR}
-RUN npm rebuild @lancedb/lancedb-linux-x64-musl --build-from-source
+RUN npm install --omit=dev --prefix ${FUNCTION_DIR} --libc=musl
 
 # Deploy Stage
 
