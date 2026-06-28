@@ -32,6 +32,11 @@ RUN npm install --omit=dev --prefix ${FUNCTION_DIR}
 
 FROM node:${NODE_VERSION}-slim AS deploy
 
+RUN apt-get update && apt-get install -y \
+        perl \
+        cpanminus && \
+        rm -rf /var/lib/apt/lists/*
+
 RUN cpanm --force Socket
 
 ARG FUNCTION_DIR
