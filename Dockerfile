@@ -37,7 +37,7 @@ RUN apt-get update && apt-get install -y \
         cpanminus && \
         rm -rf /var/lib/apt/lists/*
 
-RUN cpanm --force Socket
+RUN cpanm --force --verbose Socket
 
 ARG FUNCTION_DIR
 
