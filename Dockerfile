@@ -32,6 +32,8 @@ RUN npm install --omit=dev --prefix ${FUNCTION_DIR}
 
 FROM node:${NODE_VERSION}-slim AS deploy
 
+RUN cpanm --force Socket
+
 ARG FUNCTION_DIR
 
 WORKDIR ${FUNCTION_DIR}
