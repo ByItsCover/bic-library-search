@@ -34,7 +34,8 @@ FROM node:${NODE_VERSION}-slim AS deploy
 
 RUN apt-get update && apt-get install -y \
         perl \
-        cpanminus && \
+        cpanminus \
+        gcc && \
         rm -rf /var/lib/apt/lists/*
 
 RUN cpanm --force --verbose Socket
