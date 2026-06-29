@@ -30,15 +30,7 @@ RUN npm install --omit=dev --prefix ${FUNCTION_DIR}
 
 # Deploy Stage
 
-FROM node:${NODE_VERSION}-slim AS deploy
-
-RUN apt-get update && apt-get install -y \
-        perl \
-        cpanminus \
-        gcc && \
-        rm -rf /var/lib/apt/lists/*
-
-RUN cpanm --force --verbose Socket
+FROM gcr.io/distroless/nodejs${NODE_VERSION}-debian13 AS deploy
 
 ARG FUNCTION_DIR
 
