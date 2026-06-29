@@ -40,6 +40,6 @@ ENV ROOT_DIR=${FUNCTION_DIR}
 
 COPY --from=build ${FUNCTION_DIR} ${FUNCTION_DIR}
 
-ENTRYPOINT ["/nodejs/bin/node", "${FUNCTION_DIR}/node_modules/aws-lambda-ric/bin/index.js"]
+ENTRYPOINT ["/nodejs/bin/node", "/var/task/node_modules/aws-lambda-ric/index.mjs"]
 
 CMD ["index.handler"]
