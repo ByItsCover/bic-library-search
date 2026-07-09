@@ -24,10 +24,10 @@ resource "aws_apigatewayv2_route" "search_default_post" {
   authorization_type = "NONE"
 }
 
-resource "aws_apigatewayv2_route" "search_healthcheck_get" {
+resource "aws_apigatewayv2_route" "search_health_get" {
   api_id = local.api_gw_id
 
-  route_key          = "GET /search/healthcheck"
+  route_key          = "GET /search/health"
   target             = "integrations/${aws_apigatewayv2_integration.lambda_handler.id}"
   authorization_type = "NONE"
 }
