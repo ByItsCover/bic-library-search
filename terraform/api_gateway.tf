@@ -16,7 +16,7 @@ resource "aws_apigatewayv2_integration" "lambda_handler" {
   }
 }
 
-resource "aws_apigatewayv2_route" "search_post" {
+resource "aws_apigatewayv2_route" "search_default_post" {
   api_id = local.api_gw_id
 
   route_key          = "POST /search"
@@ -24,21 +24,10 @@ resource "aws_apigatewayv2_route" "search_post" {
   authorization_type = "NONE"
 }
 
-resource "aws_apigatewayv2_route" "default_get" {
+resource "aws_apigatewayv2_route" "search_health_get" {
   api_id = local.api_gw_id
 
-  route_key          = "GET /"
+  route_key          = "GET /search/health"
   target             = "integrations/${aws_apigatewayv2_integration.lambda_handler.id}"
   authorization_type = "NONE"
-}
-
-resource "aws_apigatewayv2_stage" "search_stage" {
-  api_id = local.api_gw_id
-
-  name        = "$default"
-  auto_deploy = true
-
-  lifecycle {
-    create_before_destroy = true
-  }
 }

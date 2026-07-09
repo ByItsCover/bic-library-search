@@ -8,7 +8,7 @@ import { hardcoverMiddleware, lanceMiddleware, sqsMiddleware } from "./middlewar
 
 const app = new Router();
 
-app.get('/', health);
+app.get('/search/health', health);
 app.post('/search', [lanceMiddleware, hardcoverMiddleware, sqsMiddleware], search);
 
 export const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
