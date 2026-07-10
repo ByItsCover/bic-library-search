@@ -41,7 +41,7 @@ variable "lambda_name" {
 
 variable "lambda_memory" {
   type        = number
-  description = "Memory in MB alloted to Lambda function"
+  description = "Memory in MB allotted to Lambda function"
   default     = 1024
 }
 
