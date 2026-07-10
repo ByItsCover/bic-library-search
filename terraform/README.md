@@ -37,7 +37,7 @@ No modules.
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region | `string` | n/a | yes |
 | <a name="input_bic_infra_workspace"></a> [bic\_infra\_workspace](#input\_bic\_infra\_workspace) | Terraform Cloud Workspace BIC-Infra name | `string` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | Deployment Environment | `string` | n/a | yes |
-| <a name="input_lambda_memory"></a> [lambda\_memory](#input\_lambda\_memory) | Memory in MB alloted to Lambda function | `number` | `1024` | no |
+| <a name="input_lambda_memory"></a> [lambda\_memory](#input\_lambda\_memory) | Memory in MB allotted to Lambda function | `number` | `1024` | no |
 | <a name="input_lambda_name"></a> [lambda\_name](#input\_lambda\_name) | Name of Lambda Function | `string` | `"library-search-lambda"` | no |
 | <a name="input_lambda_timeout"></a> [lambda\_timeout](#input\_lambda\_timeout) | Lambda function timeout duration in seconds | `number` | `30` | no |
 | <a name="input_log_level"></a> [log\_level](#input\_log\_level) | Application log level for Lambda Function | `string` | `"DEBUG"` | no |
