@@ -14,6 +14,17 @@ data "terraform_remote_state" "bic_infra" {
   }
 }
 
+data "terraform_remote_state" "bic_site" {
+  backend = "remote"
+
+  config = {
+    organization = var.tfe_org_name
+    workspaces = {
+      name = var.bic_site_workspace
+    }
+  }
+}
+
 data "aws_ecr_image" "search_image" {
   repository_name = local.ecr_repo
   image_tag       = "latest"
