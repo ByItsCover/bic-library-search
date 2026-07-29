@@ -10,7 +10,7 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.54.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.56.0 |
 | <a name="provider_terraform"></a> [terraform](#provider\_terraform) | n/a |
 
 ## Modules
@@ -28,6 +28,7 @@ No modules.
 | [aws_lambda_permission.public_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
 | [aws_ecr_image.search_image](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ecr_image) | data source |
 | [terraform_remote_state.bic_infra](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/data-sources/remote_state) | data source |
+| [terraform_remote_state.bic_site](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/data-sources/remote_state) | data source |
 
 ## Inputs
 
@@ -36,6 +37,7 @@ No modules.
 | <a name="input_api_gateway_timeout"></a> [api\_gateway\_timeout](#input\_api\_gateway\_timeout) | API Gateway timeout in milliseconds | `number` | `29000` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS Region | `string` | n/a | yes |
 | <a name="input_bic_infra_workspace"></a> [bic\_infra\_workspace](#input\_bic\_infra\_workspace) | Terraform Cloud Workspace BIC-Infra name | `string` | n/a | yes |
+| <a name="input_bic_site_workspace"></a> [bic\_site\_workspace](#input\_bic\_site\_workspace) | Terraform Cloud Workspace BIC-Site name | `string` | n/a | yes |
 | <a name="input_environment"></a> [environment](#input\_environment) | Deployment Environment | `string` | n/a | yes |
 | <a name="input_lambda_memory"></a> [lambda\_memory](#input\_lambda\_memory) | Memory in MB allotted to Lambda function | `number` | `1024` | no |
 | <a name="input_lambda_name"></a> [lambda\_name](#input\_lambda\_name) | Name of Lambda Function | `string` | `"library-search-lambda"` | no |
