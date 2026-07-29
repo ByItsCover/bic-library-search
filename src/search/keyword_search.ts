@@ -80,7 +80,8 @@ const keywordSearch = async (nerPairs: NerResult[], hardcoverClient: ApolloClien
                 book_id: book.id,
                 isbn_13: book.default_cover_edition.isbn_13,
                 cover_url: book.default_cover_edition.image.url,
-                _distance: null
+                _distance: null,
+                rating: null
             };
             idCoverMap.set(book.id, newCover);
         }
