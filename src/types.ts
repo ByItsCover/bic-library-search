@@ -1,9 +1,26 @@
+export enum Rating {
+    "Dislike",
+    "Neutral",
+    "Like",
+    "Love"
+}
+
 export type CoverResult = {
     cover_id: bigint,
     book_id: bigint,
     isbn_13: string,
     cover_url: string,
     _distance: number | null,
+    rating: Rating | null,
+};
+
+export enum Feedback {
+    "Rating",
+}
+
+export type FeedbackResult = {
+    cover_id: bigint,
+    score: bigint,
 };
 
 export type NerResult = {
@@ -40,3 +57,15 @@ export type BookIdRetrieval = {
 };
 
 export type BookIdRetrievalVariables = Record<string, never>;
+
+export type UserAttributes = {
+    username: string;
+    email: string;
+    uid_hex: string;
+    uid_bytes: Uint8Array;
+};
+
+export type TablePair = {
+    var_name: string;
+    table_name: string;
+};

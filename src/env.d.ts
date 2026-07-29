@@ -6,6 +6,8 @@ declare global {
             DB_URI: string;
             ENVIRONMENT: "test" | "dev" | "prod";
             HARDCOVER_SECRET_NAME: string;
+            COGNITO_USER_POOL_ID: string;
+            COGNITO_CLIENT_ID: string;
             SQS_URL: string;
         }
     }

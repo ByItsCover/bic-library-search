@@ -5,10 +5,10 @@ import { constants } from "../constants";
 import logger from "../logger";
 
 
-const vectorSearch = async ( embedding: number[], table: lancedb.Table) => {
+const vectorSearch = async ( embedding: number[], coversTable: lancedb.Table) => {
     const queryVector = normalize(embedding);
 
-    let tableRes: CoverResult[] = await table.search(queryVector)
+    let tableRes: CoverResult[] = await coversTable.search(queryVector)
         .select(["cover_id", "book_id", "isbn_13", "cover_url", "_distance"])
         .limit(constants.vector_query_limit)
         .toArray();

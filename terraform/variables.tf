@@ -23,6 +23,11 @@ variable "bic_infra_workspace" {
   description = "Terraform Cloud Workspace BIC-Infra name"
 }
 
+variable "bic_site_workspace" {
+  type        = string
+  description = "Terraform Cloud Workspace BIC-Site name"
+}
+
 # API
 
 variable "api_gateway_timeout" {

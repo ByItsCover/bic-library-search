@@ -23,11 +23,18 @@
     "@aws-sdk/client-secrets-manager": "^3.1053.0",
     "@aws-sdk/client-sqs": "^3.1069.0",
     "@lancedb/lancedb": "^0.27.1",
+    "aws-jwt-verify": "^5.2.1",
     "aws-lambda-ric": "^4.0.2",
-    "glob": "^13.0.6"
+    "brace-expansion": "^5.0.8",
+    "glob": "^13.0.6",
+    "tar": "^7.5.22",
+    "uuid": "^14.0.1"
   },
   "allowScripts": {
     "esbuild@0.28.1": true,
     "aws-lambda-ric@4.0.2": true
+  },
+  "overrides": {
+    "brace-expansion": "^5.0.8"
   }
 }
