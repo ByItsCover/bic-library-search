@@ -34,6 +34,6 @@ const userRatings = async (
     console.log(updated_results);
 
     return updated_results;
-}
+};
 
 export { userRatings };

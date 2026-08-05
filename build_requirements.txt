@@ -1,0 +1,9 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+open_clip_torch
+gliner
+transformers
+onnxruntime
+onnxscript
+onnx

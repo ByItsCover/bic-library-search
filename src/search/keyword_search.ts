@@ -7,7 +7,8 @@ import {
 } from "../types";
 
 
-const keywordSearch = async (nerPairs: NerResult[], hardcoverClient: ApolloClient) => {
+const keywordSearch = async (nerPairsPromise: Promise<NerResult[]>, hardcoverClient: ApolloClient) => {
+    const nerPairs = await nerPairsPromise;
     let keywordRes: CoverResult[] = [];
     if (nerPairs.length === 0) {
         return keywordRes;

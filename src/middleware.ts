@@ -4,11 +4,49 @@ import { CognitoJwtVerifier } from "aws-jwt-verify";
 import { SQSClient } from "@aws-sdk/client-sqs";
 import { BatchHttpLink } from "@apollo/client/link/batch-http";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { InferenceSession } from "onnxruntime-common";
+import { Gliner } from "gliner";
+import { CLIPTokenizer, env } from "@huggingface/transformers";
 import * as lancedb from "@lancedb/lancedb";
+import * as path from 'path';
 import { toHex, toBytes } from "./utils";
 import { UserAttributes, TablePair } from "./types";
 import { constants } from "./constants";
 
+
+const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
+    env.allowLocalModels = true;
+
+    const clipDir = path.join(process.env.ROOT_DIR, "clip_model")
+    const clipPath = path.join(clipDir, "clip_text.onnx");
+    const glinerDir = path.join(process.env.ROOT_DIR, "gliner_model")
+    const glinerPath = path.join(glinerDir, "gliner.onnx");
+
+    const clipSession = await InferenceSession.create(clipPath);
+    const tokenizer = await CLIPTokenizer.from_pretrained(clipDir, {
+        local_files_only: true
+    });
+
+    const glinerModel = new Gliner({
+        tokenizerPath: glinerDir,
+        onnxSettings: {
+            modelPath: glinerPath,
+            executionProvider: 'cpu',
+            multiThread: false,
+            fetchBinary: true
+        },
+        transformersSettings: {
+            allowLocalModels: true,
+            useBrowserCache: true,
+        }
+    });
+    await glinerModel.initialize();
+
+    reqCtx.set("clip_session", clipSession);
+    reqCtx.set("clip_tokenizer", tokenizer);
+    reqCtx.set("gliner_model", glinerModel);
+    await next();
+};
 
 const lanceMiddleware: Middleware = async ({ reqCtx, next }) => {
     const db = await lancedb.connect(process.env.DB_URI);
@@ -83,4 +121,4 @@ const sqsMiddleware: Middleware = async ({ reqCtx, next }) => {
     await next();
 };
 
-export { lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, sqsMiddleware };
+export { modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, sqsMiddleware };
