@@ -8,7 +8,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "esbuild `find src \\( -name '*.ts' \\)` --bundle --minify --platform=node --target=esnext --outdir=dist --external:@lancedb/lancedb"
+    "build": "esbuild `find src \\( -name '*.ts' \\)` --bundle --minify --platform=node --target=esnext --outdir=dist --external:@lancedb/lancedb --external:onnxruntime-node"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.161",
