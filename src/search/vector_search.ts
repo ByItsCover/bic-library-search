@@ -5,7 +5,8 @@ import { constants } from "../constants";
 import logger from "../logger";
 
 
-const vectorSearch = async ( embedding: number[], coversTable: lancedb.Table) => {
+const vectorSearch = async (embeddingPromise: Promise<number[]>, coversTable: lancedb.Table) => {
+    const embedding = await embeddingPromise;
     const queryVector = normalize(embedding);
 
     let tableRes: CoverResult[] = await coversTable.search(queryVector)

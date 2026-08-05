@@ -5,7 +5,7 @@
     "preserveConstEnums": true,
     "sourceMap": false,
     "module":"nodenext",
-    "moduleResolution":"nodenext",
+    "moduleResolution":"bundler",
     "esModuleInterop": true, 
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true, 
