@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
         unzip \
         xz-utils \
         python3 \
+        python3-pip \
         libcurl4-openssl-dev
 
 ARG FUNCTION_DIR
