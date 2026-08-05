@@ -4,8 +4,7 @@ ARG NODE_VERSION=24
 ARG PYTHON_VERSION=3.13
 ARG FUNCTION_DIR="/var/task"
 
-FROM python${PYTHON_VERSION}-nodejs${NODE_VERSION}-slim
-FROM node:${NODE_VERSION}-slim AS build
+FROM python${PYTHON_VERSION}-nodejs${NODE_VERSION}-slim AS build
 
 RUN apt-get update && apt-get install -y \
         g++ \
