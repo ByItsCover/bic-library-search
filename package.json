@@ -22,7 +22,7 @@
     "@aws-lambda-powertools/parameters": "^2.33.1",
     "@aws-sdk/client-secrets-manager": "^3.1053.0",
     "@aws-sdk/client-sqs": "^3.1069.0",
-    "@huggingface/transformers": "^4.0.1",
+    "@huggingface/transformers": "4.0.1",
     "@lancedb/lancedb": "^0.27.1",
     "adm-zip": "^0.6.0",
     "aws-jwt-verify": "^5.2.1",
@@ -41,7 +41,7 @@
   },
   "overrides": {
     "brace-expansion": "^5.0.8",
-    "@xenova/transformers": "npm:@huggingface/transformers@^4.0.1",
+    "@xenova/transformers": "npm:@huggingface/transformers@4.0.1",
     "adm-zip": "^0.6.0",
     "sharp": "^0.35.3"
   }
