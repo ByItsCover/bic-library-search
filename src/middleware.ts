@@ -37,10 +37,6 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
             executionProvider: 'cpu',
             multiThread: false,
             fetchBinary: true
-        },
-        transformersSettings: {
-            allowLocalModels: true,
-            useBrowserCache: true,
         }
     });
     await glinerModel.initialize();
