@@ -16,6 +16,8 @@ import { constants } from "./constants";
 
 const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     env.allowLocalModels = true;
+    console.time('modelMiddleware');
+    console.log("Starting model loads");
 
     const clipDir = path.join(process.env.ROOT_DIR ?? ".", "clip_model");
     const clipPath = path.join(clipDir, "clip_text.onnx");
@@ -26,9 +28,11 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
         clipPath,
         { executionProviders: ['cpu'], graphOptimizationLevel: 'all'}
     );
+    console.timeLog("modelMiddleware", "Just loaded clipSession");
     const tokenizer = await CLIPTokenizer.from_pretrained(clipDir, {
         local_files_only: true
     });
+    console.timeLog("modelMiddleware", "Just loaded tokenizer");
 
     const glinerModel = new Gliner({
         tokenizerPath: glinerDir,
@@ -43,13 +47,18 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
             useBrowserCache: false,
         }
     });
+    console.timeLog("modelMiddleware", "Just loaded glinerModel");
 
     try {
         await glinerModel.initialize();
+        console.timeLog("modelMiddleware", "Gliner model initialized now.");
     } catch (error) {
         console.error("Gliner initialize failed", error);
         throw error;
     }
+
+    console.timeEnd("modelMiddleware");
+    console.log("Done with model loads");
 
     reqCtx.set("clip_session", clipSession);
     reqCtx.set("clip_tokenizer", tokenizer);
