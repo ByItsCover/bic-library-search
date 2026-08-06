@@ -36,14 +36,20 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
             modelPath: glinerPath,
             executionProvider: 'cpu',
             multiThread: false,
-            fetchBinary: true
+            fetchBinary: false
         },
         transformersSettings: {
             allowLocalModels: true,
             useBrowserCache: false,
         }
     });
-    await glinerModel.initialize();
+
+    try {
+        await glinerModel.initialize();
+    } catch (error) {
+        console.error("Gliner initialize failed", error);
+        throw error;
+    }
 
     reqCtx.set("clip_session", clipSession);
     reqCtx.set("clip_tokenizer", tokenizer);
