@@ -19,6 +19,7 @@ const extractNER = async (text: string, glinerModel: Gliner) => {
         texts: [text],
         entities: NER_QUERY_LABELS
     });
+    console.log("Ner res:", nerRes);
     const nerResults: NerResult[] = nerRes[0].filter(res => NER_SEARCH_LABELS.includes(res.label))
         .map((res) => ({
             label: res.label,

@@ -39,13 +39,12 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
         onnxSettings: {
             modelPath: glinerPath,
             executionProvider: 'cpu',
-            multiThread: false,
-            fetchBinary: false
         },
         transformersSettings: {
             allowLocalModels: true,
             useBrowserCache: false,
-        }
+        },
+        modelType: "gliner"
     });
     console.timeLog("modelMiddleware", "Just loaded glinerModel");
 
