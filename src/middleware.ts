@@ -43,8 +43,7 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
         transformersSettings: {
             allowLocalModels: true,
             useBrowserCache: false,
-        },
-        modelType: "gliner"
+        }
     });
     console.timeLog("modelMiddleware", "Just loaded glinerModel");
 
