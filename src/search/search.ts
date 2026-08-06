@@ -2,7 +2,7 @@ import { RequestContext } from "@aws-lambda-powertools/event-handler/types";
 import { SQSClient } from "@aws-sdk/client-sqs";
 import * as lancedb from "@lancedb/lancedb"
 import { ApolloClient } from "@apollo/client";
-import { InferenceSession } from "onnxruntime-common";
+import { InferenceSession } from "onnxruntime-node";
 import { Gliner } from "gliner";
 import { PreTrainedTokenizer } from "@huggingface/transformers";
 import { embedText, extractNER } from "./model_helper";

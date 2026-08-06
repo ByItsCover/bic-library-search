@@ -4,7 +4,7 @@ import { CognitoJwtVerifier } from "aws-jwt-verify";
 import { SQSClient } from "@aws-sdk/client-sqs";
 import { BatchHttpLink } from "@apollo/client/link/batch-http";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
-import { InferenceSession } from "onnxruntime-common";
+import { InferenceSession } from "onnxruntime-node";
 import { Gliner } from "gliner";
 import { CLIPTokenizer, env } from "@huggingface/transformers";
 import * as lancedb from "@lancedb/lancedb";
