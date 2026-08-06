@@ -1,6 +1,6 @@
 import { PreTrainedTokenizer } from "@huggingface/transformers";
 import { InferenceSession, Tensor } from "onnxruntime-node";
-import { Gliner } from "gliner";
+import { Gliner } from "gliner/node";
 import { NER_QUERY_LABELS, NER_SEARCH_LABELS } from "../constants";
 import {NerResult} from "../types";
 

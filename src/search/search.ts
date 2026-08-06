@@ -3,7 +3,7 @@ import { SQSClient } from "@aws-sdk/client-sqs";
 import * as lancedb from "@lancedb/lancedb"
 import { ApolloClient } from "@apollo/client";
 import { InferenceSession } from "onnxruntime-node";
-import { Gliner } from "gliner";
+import { Gliner } from "gliner/node";
 import { PreTrainedTokenizer } from "@huggingface/transformers";
 import { embedText, extractNER } from "./model_helper";
 import vectorSearch from "./vector_search";

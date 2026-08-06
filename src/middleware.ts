@@ -5,7 +5,7 @@ import { SQSClient } from "@aws-sdk/client-sqs";
 import { BatchHttpLink } from "@apollo/client/link/batch-http";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { InferenceSession } from "onnxruntime-node";
-import { Gliner } from "gliner";
+import { Gliner } from "gliner/node";
 import { CLIPTokenizer, env } from "@huggingface/transformers";
 import * as lancedb from "@lancedb/lancedb";
 import * as path from 'path';
