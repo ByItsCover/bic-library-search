@@ -22,7 +22,10 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model")
     const glinerPath = path.join(glinerDir, "gliner.onnx");
 
-    const clipSession = await InferenceSession.create(clipPath);
+    const clipSession = await InferenceSession.create(
+        clipPath,
+        { executionProviders: ['cpu'], graphOptimizationLevel: 'all'}
+    );
     const tokenizer = await CLIPTokenizer.from_pretrained(clipDir, {
         local_files_only: true
     });
