@@ -27,7 +27,7 @@ const search = async (reqCtx : RequestContext) => {
     const userAttributes = reqCtx.get("user_attributes") as UserAttributes | null;
     const clipSession = reqCtx.get("clip_session") as InferenceSession;
     const clipTokenizer = reqCtx.get("clip_tokenizer") as PreTrainedTokenizer;
-    const glinerModel = reqCtx.get("gliner_Model") as Gliner;
+    const glinerModel = reqCtx.get("gliner_model") as Gliner;
     const coversTable = reqCtx.get("covers_table") as lancedb.Table | null;
     const feedbackTable = reqCtx.get("feedback_table") as lancedb.Table | null;
     const hardcoverClient = reqCtx.get("hardcover_client") as ApolloClient;
