@@ -30,7 +30,7 @@
     "brace-expansion": "^5.0.8",
     "gliner": "^0.0.19",
     "glob": "^13.0.6",
-    "onnxruntime-node": "^1.19.2",
+    "onnxruntime-node": "^1.27.0",
     "onnxruntime-web": "^1.27.0",
     "sharp": "^0.35.3",
     "tar": "^7.5.22",
@@ -41,6 +41,7 @@
     "aws-lambda-ric@4.0.2": true
   },
   "overrides": {
+    "onnxruntime-node": "^1.27.0",
     "onnxruntime-web": "^1.27.0",
     "brace-expansion": "^5.0.8",
     "@xenova/transformers": "npm:@huggingface/transformers@4.0.1",
