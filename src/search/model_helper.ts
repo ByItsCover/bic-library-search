@@ -14,6 +14,7 @@ const embedText = async (text: string, clipSession: InferenceSession, tokenizer:
 
 const extractNER = async (text: string, glinerModel: Gliner) => {
     console.log("Text:", text);
+    console.log("Gliner model:", glinerModel);
 
     const nerRes = await glinerModel.inference({
         texts: [text],
