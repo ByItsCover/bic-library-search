@@ -17,7 +17,7 @@ import { constants } from "./constants";
 const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     env.allowLocalModels = true;
 
-    const clipDir = path.join(process.env.ROOT_DIR ?? ".", "clip_model")
+    const clipDir = path.join(process.env.ROOT_DIR ?? ".", "clip_model");
     const clipPath = path.join(clipDir, "clip_text.onnx");
     const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model")
     const glinerPath = path.join(glinerDir, "gliner.onnx");
@@ -37,6 +37,10 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
             executionProvider: 'cpu',
             multiThread: false,
             fetchBinary: true
+        },
+        transformersSettings: {
+            allowLocalModels: true,
+            useBrowserCache: false,
         }
     });
     await glinerModel.initialize();
