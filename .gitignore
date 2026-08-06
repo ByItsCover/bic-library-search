@@ -3,3 +3,5 @@ dist/
 .idea/
 
 clenv/
+clip_model/
+gliner_model/
