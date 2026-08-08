@@ -3,13 +3,13 @@ import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
 import logger from "./logger";
 import { health } from "./healthcheck/healthcheck";
 import search from "./search/search";
-import { modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, sqsMiddleware } from "./middleware";
+import { modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, s3Middleware } from "./middleware";
 
 
 const app = new Router();
 
 app.get('/search/health', health);
-app.post('/search', [modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, sqsMiddleware], search);
+app.post('/search', [modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, s3Middleware], search);
 
 export const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
     logger.info(`Event: ${JSON.stringify(event, null, 2)}`);

@@ -1,7 +1,7 @@
 import type { Middleware } from "@aws-lambda-powertools/event-handler/types";
 import { getSecret } from "@aws-lambda-powertools/parameters/secrets";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
-import { SQSClient } from "@aws-sdk/client-sqs";
+import { S3Client } from "@aws-sdk/client-s3";
 import { BatchHttpLink } from "@apollo/client/link/batch-http";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { InferenceSession } from "onnxruntime-node";
@@ -130,11 +130,11 @@ const hardcoverMiddleware: Middleware = async ({ reqCtx, next }) => {
     await next();
 };
 
-const sqsMiddleware: Middleware = async ({ reqCtx, next }) => {
+const s3Middleware: Middleware = async ({ reqCtx, next }) => {
     const config = {};
-    const client = new SQSClient(config);
-    reqCtx.set('sqs_client', client);
+    const client = new S3Client(config);
+    reqCtx.set('s3_client', client);
     await next();
 };
 
-export { modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, sqsMiddleware };
+export { modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, s3Middleware };
