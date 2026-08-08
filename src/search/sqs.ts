@@ -50,12 +50,7 @@ const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkS
             }
         }));
         const imagePromises = messages.map(async (_, i) => {
-            try {
-                messages[i].MessageBody = await fetchBase64(nerChunk[i].cover_url);
-            } catch (error) {
-                console.error(`Message ${i} with url ${nerChunk[i].cover_url} base64 get failed`, error);
-                throw Error("This ain't it chief");
-            }
+            messages[i].MessageBody = await fetchBase64(nerChunk[i].cover_url);
         });
         await Promise.all(imagePromises);
 
@@ -64,12 +59,16 @@ const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkS
             Entries: messages
         });
 
-        const batchResponse = await sqsClient.send(batchCommand);
-        if (batchResponse.Successful !== undefined) {
-            successfulCount += batchResponse.Successful.length;
-        }
-        if (batchResponse.Failed !== undefined) {
-            failureResponses.push(...batchResponse.Failed);
+        try {
+            const batchResponse = await sqsClient.send(batchCommand);
+            if (batchResponse.Successful !== undefined) {
+                successfulCount += batchResponse.Successful.length;
+            }
+            if (batchResponse.Failed !== undefined) {
+                failureResponses.push(...batchResponse.Failed);
+            }
+        } catch (error) {
+            console.error("SQS send failed:", error);
         }
     });
 
