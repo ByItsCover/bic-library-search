@@ -1,7 +1,7 @@
 export const constants = {
     covers_table_name: "covers",
     feedback_table_name: "feedback",
-    sqs_chunk_size: 6,
+    sqs_chunk_size: 4,
     vector_query_limit: 100,
     keyword_query_limit: 100,
     results_limit: 10,

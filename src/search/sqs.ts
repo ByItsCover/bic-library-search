@@ -25,8 +25,8 @@ const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkS
     let successfulCount = 0;
     const failureResponses:  BatchResultErrorEntry[] = [];
 
-    const batchPromises = Array(Math.ceil(nerItems.length / chunkSize)).fill(0).map(async (_, i) => {
-        const nerChunk = nerItems.slice(i * chunkSize, (i+1) * chunkSize);
+    const batchPromises = Array(Math.ceil(nerItems.length / chunkSize)).fill(0).map(async (_, ind) => {
+        const nerChunk = nerItems.slice(ind * chunkSize, (ind+1) * chunkSize);
 
         const messages = nerChunk.map((item): SendMessageBatchRequestEntry => ({
             Id: `${String(item.cover_id)}-${item.isbn_13}`,
@@ -55,6 +55,7 @@ const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkS
         });
         await Promise.all(imagePromises);
 
+        logger.info(`"Number of messages to upload in chunk ${ind}: ${messages.length}`);
         const batchCommand = new SendMessageBatchCommand({
             QueueUrl: process.env.SQS_URL,
             Entries: messages
