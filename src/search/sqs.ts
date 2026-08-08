@@ -4,6 +4,7 @@ import {
     SendMessageBatchRequestEntry, BatchResultErrorEntry
 } from "@aws-sdk/client-sqs";
 import {CoverResult} from "../types";
+import { constants } from "../constants";
 import logger from "../logger";
 
 
@@ -13,7 +14,7 @@ const fetchBase64 = async (url: string) => {
     return Buffer.from(image).toString('base64');
 };
 
-const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkSize = 10) => {
+const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkSize = constants.sqs_chunk_size) => {
     if (nerItems.length === 0) {
         logger.info("No new books");
         return;
