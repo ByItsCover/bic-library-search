@@ -4,6 +4,7 @@ import {
     SendMessageBatchRequestEntry, BatchResultErrorEntry
 } from "@aws-sdk/client-sqs";
 import {CoverResult} from "../types";
+import { constants } from "../constants";
 import logger from "../logger";
 
 
@@ -13,7 +14,7 @@ const fetchBase64 = async (url: string) => {
     return Buffer.from(image).toString('base64');
 };
 
-const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkSize = 10) => {
+const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkSize = constants.sqs_chunk_size) => {
     if (nerItems.length === 0) {
         logger.info("No new books");
         return;
@@ -24,7 +25,7 @@ const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkS
     let successfulCount = 0;
     const failureResponses:  BatchResultErrorEntry[] = [];
 
-    const batchPromises = Array(Math.ceil(nerItems.length / 10)).fill(0).map(async (_, i) => {
+    const batchPromises = Array(Math.ceil(nerItems.length / chunkSize)).fill(0).map(async (_, i) => {
         const nerChunk = nerItems.slice(i * chunkSize, (i+1) * chunkSize);
 
         const messages = nerChunk.map((item): SendMessageBatchRequestEntry => ({
