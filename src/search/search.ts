@@ -1,5 +1,5 @@
 import { RequestContext } from "@aws-lambda-powertools/event-handler/types";
-import { SQSClient } from "@aws-sdk/client-sqs";
+import { S3Client } from "@aws-sdk/client-s3";
 import * as lancedb from "@lancedb/lancedb"
 import { ApolloClient } from "@apollo/client";
 import { InferenceSession } from "onnxruntime-node";
@@ -9,7 +9,7 @@ import { embedText, extractNER } from "./model_helper";
 import vectorSearch from "./vector_search";
 import keywordSearch from "./keyword_search";
 import { userRatings } from "./user_query";
-import uploadBooks from "./sqs";
+import uploadBooks from "./embed";
 import { mergeResults } from "../utils";
 import { CoverResult, UserAttributes } from "../types";
 import { constants } from "../constants";
@@ -31,7 +31,7 @@ const search = async (reqCtx : RequestContext) => {
     const coversTable = reqCtx.get("covers_table") as lancedb.Table | null;
     const feedbackTable = reqCtx.get("feedback_table") as lancedb.Table | null;
     const hardcoverClient = reqCtx.get("hardcover_client") as ApolloClient;
-    const sqsClient = reqCtx.get("sqs_client") as SQSClient;
+    const s3Client = reqCtx.get("s3_client") as S3Client;
 
     const nerResPromise = extractNER(body.query, glinerModel);
 
@@ -49,7 +49,7 @@ const search = async (reqCtx : RequestContext) => {
         const [currentSearchResults, newNerItems] = mergeResults(vectorResult, keywordResult, 0.51, 0.49, 60, constants.results_limit);
         searchResults = currentSearchResults;
 
-        const newUploadTask = uploadBooks(newNerItems, sqsClient);
+        const newUploadTask = uploadBooks(newNerItems, s3Client);
         if (userAttributes !== null && feedbackTable !== null) {
             searchResults = await userRatings(searchResults, userAttributes, feedbackTable);
         }

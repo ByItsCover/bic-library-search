@@ -5,7 +5,7 @@ locals {
   hardcover_secret_name       = data.terraform_remote_state.bic_infra.outputs.hardcover_secret_name
   cognito_user_pool_id        = data.terraform_remote_state.bic_infra.outputs.auth_user_pool_id
   cognito_user_pool_client_id = data.terraform_remote_state.bic_site.outputs.cognito_pool_client_id
-  sqs_url                     = data.terraform_remote_state.bic_infra.outputs.sqs_url
+  cover_dump_name             = data.terraform_remote_state.bic_infra.outputs.s3_cover_dump_name
 }
 
 resource "aws_lambda_function" "search_function" {
@@ -31,7 +31,7 @@ resource "aws_lambda_function" "search_function" {
       HARDCOVER_SECRET_NAME = local.hardcover_secret_name
       COGNITO_USER_POOL_ID  = local.cognito_user_pool_id,
       COGNITO_CLIENT_ID     = local.cognito_user_pool_client_id
-      SQS_URL               = local.sqs_url
+      BUCKET_NAME           = local.cover_dump_name
     }
   }
 }

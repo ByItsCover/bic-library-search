@@ -20,6 +20,7 @@
     "@aws-lambda-powertools/event-handler": "^2.32.0",
     "@aws-lambda-powertools/logger": "^2.32.0",
     "@aws-lambda-powertools/parameters": "^2.33.1",
+    "@aws-sdk/client-s3": "^3.1106.0",
     "@aws-sdk/client-secrets-manager": "^3.1053.0",
     "@aws-sdk/client-sqs": "^3.1069.0",
     "@huggingface/transformers": "4.0.1",

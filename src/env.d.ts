@@ -9,7 +9,7 @@ declare global {
             HARDCOVER_SECRET_NAME: string;
             COGNITO_USER_POOL_ID: string;
             COGNITO_CLIENT_ID: string;
-            SQS_URL: string;
+            BUCKET_NAME: string;
         }
     }
 }
