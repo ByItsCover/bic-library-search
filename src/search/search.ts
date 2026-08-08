@@ -9,7 +9,7 @@ import { embedText, extractNER } from "./model_helper";
 import vectorSearch from "./vector_search";
 import keywordSearch from "./keyword_search";
 import { userRatings } from "./user_query";
-import { uploadBooks } from "./sqs";
+import uploadBooks from "./sqs";
 import { mergeResults } from "../utils";
 import { CoverResult, UserAttributes } from "../types";
 import { constants } from "../constants";

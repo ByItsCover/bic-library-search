@@ -6,7 +6,14 @@ import {
 import {CoverResult} from "../types";
 import logger from "../logger";
 
-export const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkSize = 10) => {
+
+const fetchBase64 = async (url: string) => {
+    const response = await fetch(url);
+    const image = await response.arrayBuffer();
+    return Buffer.from(image).toBase64();
+};
+
+const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkSize = 10) => {
     if (nerItems.length === 0) {
         logger.info("No new books");
         return;
@@ -17,12 +24,12 @@ export const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient,
     let successfulCount = 0;
     const failureResponses:  BatchResultErrorEntry[] = [];
 
-    const promises = Array(Math.ceil(nerItems.length / 10)).fill(0).map(async (_, i) => {
+    const batchPromises = Array(Math.ceil(nerItems.length / 10)).fill(0).map(async (_, i) => {
         const nerChunk = nerItems.slice(i * chunkSize, (i+1) * chunkSize);
 
         const messages = nerChunk.map((item): SendMessageBatchRequestEntry => ({
             Id: `${String(item.cover_id)}-${item.isbn_13}`,
-            MessageBody: item.cover_url,
+            MessageBody: undefined,
             MessageAttributes: {
                 "cover_id": {
                     DataType: "Number",
@@ -35,9 +42,18 @@ export const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient,
                 "isbn_13": {
                     DataType: "String",
                     StringValue: item.isbn_13
+                },
+                "image_url": {
+                    DataType: "String",
+                    StringValue: item.cover_url
                 }
             }
         }));
+        const imagePromises = messages.map(async (_, i) => {
+            messages[i].MessageBody = await fetchBase64(nerChunk[i].cover_url);
+        });
+        await Promise.all(imagePromises);
+
         const batchCommand = new SendMessageBatchCommand({
             QueueUrl: process.env.SQS_URL,
             Entries: messages
@@ -52,7 +68,9 @@ export const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient,
         }
     });
 
-    await Promise.all(promises);
+    await Promise.all(batchPromises);
     logger.info(`Number of embedding uploaded: ${successfulCount}`);
     logger.info("Failure responses:", {failed: failureResponses});
-}
+};
+
+export default uploadBooks;
