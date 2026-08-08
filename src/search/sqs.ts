@@ -10,7 +10,7 @@ import logger from "../logger";
 const fetchBase64 = async (url: string) => {
     const response = await fetch(url);
     const image = await response.arrayBuffer();
-    return Buffer.from(image).toBase64();
+    return Buffer.from(image).toString('base64');
 };
 
 const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkSize = 10) => {
