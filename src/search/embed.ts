@@ -26,7 +26,7 @@ const uploadBooks = async (nerItems: CoverResult[], s3Client: S3Client) => {
     const s3Promises = nerItems.map(async(item) => {
         const command = new PutObjectCommand({
             Bucket: process.env.BUCKET_NAME,
-            Key: `${String(item.cover_id)}-${item.isbn_13}`,
+            Key: `${String(item.cover_id)}-${item.isbn_13}.bin`,
             Body: await fetchBuffer(item.cover_url),
             Metadata: {
                 "cover_id": String(item.cover_id),
