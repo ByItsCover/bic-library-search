@@ -50,7 +50,12 @@ const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkS
             }
         }));
         const imagePromises = messages.map(async (_, i) => {
-            messages[i].MessageBody = await fetchBase64(nerChunk[i].cover_url);
+            try {
+                messages[i].MessageBody = await fetchBase64(nerChunk[i].cover_url);
+            } catch (error) {
+                console.error(`Message ${i} with url ${nerChunk[i].cover_url} base64 get failed`, error);
+                throw Error("This ain't it chief");
+            }
         });
         await Promise.all(imagePromises);
 
