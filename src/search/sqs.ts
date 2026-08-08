@@ -10,7 +10,7 @@ import logger from "../logger";
 const fetchBase64 = async (url: string) => {
     const response = await fetch(url);
     const image = await response.arrayBuffer();
-    return Buffer.from(image).toBase64();
+    return Buffer.from(image).toString('base64');
 };
 
 const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkSize = 10) => {
@@ -50,7 +50,12 @@ const uploadBooks = async (nerItems: CoverResult[], sqsClient: SQSClient, chunkS
             }
         }));
         const imagePromises = messages.map(async (_, i) => {
-            messages[i].MessageBody = await fetchBase64(nerChunk[i].cover_url);
+            try {
+                messages[i].MessageBody = await fetchBase64(nerChunk[i].cover_url);
+            } catch (error) {
+                console.error(`Message ${i} with url ${nerChunk[i].cover_url} base64 get failed`, error);
+                throw Error("This ain't it chief");
+            }
         });
         await Promise.all(imagePromises);
 
