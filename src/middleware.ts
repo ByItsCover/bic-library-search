@@ -117,7 +117,7 @@ const customAuthMiddleware: Middleware = async ({ reqCtx, next }) => {
 
     reqCtx.set("user_attributes", userAttributes);
     await next();
-}
+};
 
 const hardcoverMiddleware: Middleware = async ({ reqCtx, next }) => {
     const secretValue = await getSecret(process.env.HARDCOVER_SECRET_NAME);
