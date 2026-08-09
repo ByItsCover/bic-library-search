@@ -4,6 +4,6 @@ environment = "prod"
 bic_infra_workspace = "bic-infra-prod"
 bic_site_workspace  = "bic-site-prod"
 
-lambda_memory  = 3008
+lambda_memory  = 4096
 lambda_timeout = 30
 log_level      = "DEBUG"

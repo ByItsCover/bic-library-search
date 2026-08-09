@@ -22,7 +22,7 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     const clipDir = path.join(process.env.ROOT_DIR ?? ".", "clip_model");
     const clipPath = path.join(clipDir, "clip_text.onnx");
     const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model")
-    const glinerPath = path.join(glinerDir, "gliner_quantized.onnx");
+    const glinerPath = path.join(glinerDir, "gliner.onnx");
 
     const clipSession = await InferenceSession.create(
         clipPath,
@@ -102,7 +102,7 @@ const customAuthMiddleware: Middleware = async ({ reqCtx, next }) => {
                 const payload = await verifier.verify(token);
                 console.log(payload);
                 userAttributes = {
-                    username: payload["preferred_username"],
+                    username: payload["preferred_username"]!.toLocaleString(),
                     email: payload["email"]!.toLocaleString(),
                     uid_hex: toHex(payload["custom:uid"]!.toLocaleString()),
                     uid_bytes: toBytes(payload["custom:uid"]!.toLocaleString()),
