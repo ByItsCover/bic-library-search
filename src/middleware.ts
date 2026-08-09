@@ -102,7 +102,7 @@ const customAuthMiddleware: Middleware = async ({ reqCtx, next }) => {
                 const payload = await verifier.verify(token);
                 console.log(payload);
                 userAttributes = {
-                    username: payload["cognito:username"],
+                    username: payload["preferred_username"],
                     email: payload["email"]!.toLocaleString(),
                     uid_hex: toHex(payload["custom:uid"]!.toLocaleString()),
                     uid_bytes: toBytes(payload["custom:uid"]!.toLocaleString()),
