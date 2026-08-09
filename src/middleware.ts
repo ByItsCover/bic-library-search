@@ -85,29 +85,34 @@ const lanceMiddleware: Middleware = async ({ reqCtx, next }) => {
 };
 
 const customAuthMiddleware: Middleware = async ({ reqCtx, next }) => {
-    const verifier = CognitoJwtVerifier.create({
-        userPoolId: process.env.COGNITO_USER_POOL_ID,
-        tokenUse: "id",
-        clientId: process.env.COGNITO_CLIENT_ID,
-    });
-
-    const accessHeader = reqCtx.event.headers?.Authorization ?? reqCtx.event.headers?.authorization ?? null;
-    const token = accessHeader !== null ? accessHeader.replace("Bearer ", "") : null;
     let userAttributes: UserAttributes | null = null;
 
-    if (token !== null) {
-        try {
-            const payload = await verifier.verify(token);
-            console.log(payload);
-            userAttributes = {
-                username: payload["cognito:username"],
-                email: payload["email"]!.toLocaleString(),
-                uid_hex: toHex(payload["custom:uid"]!.toLocaleString()),
-                uid_bytes: toBytes(payload["custom:uid"]!.toLocaleString()),
+    try {
+        const verifier = CognitoJwtVerifier.create({
+            userPoolId: process.env.COGNITO_USER_POOL_ID,
+            tokenUse: "id",
+            clientId: process.env.COGNITO_CLIENT_ID,
+        });
+
+        const accessHeader = reqCtx.event.headers?.Authorization ?? reqCtx.event.headers?.authorization ?? null;
+        const token = accessHeader !== null ? accessHeader.replace("Bearer ", "") : null;
+
+        if (token !== null) {
+            try {
+                const payload = await verifier.verify(token);
+                console.log(payload);
+                userAttributes = {
+                    username: payload["cognito:username"],
+                    email: payload["email"]!.toLocaleString(),
+                    uid_hex: toHex(payload["custom:uid"]!.toLocaleString()),
+                    uid_bytes: toBytes(payload["custom:uid"]!.toLocaleString()),
+                }
+            } catch (error) {
+                console.error("Token is not valid", error);
             }
-        } catch (error) {
-            console.error("Token is not valid", error);
         }
+    } catch (error) {
+        console.error("customAuthMiddleware failure", error);
     }
 
     reqCtx.set("user_attributes", userAttributes);
