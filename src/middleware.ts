@@ -3,83 +3,40 @@ import { getSecret } from "@aws-lambda-powertools/parameters/secrets";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 import { S3Client } from "@aws-sdk/client-s3";
 import { InferenceSession } from "onnxruntime-node";
-// import { Gliner } from "gliner/node";
-// import { CLIPTokenizer, env } from "@huggingface/transformers";
-import { Tokenizer } from "tokenizers";
 import * as lancedb from "@lancedb/lancedb";
 import * as path from 'path';
-import fs from 'fs';
-import { loadTable, initGliner, loadApolloClient, toHex, toBytes } from "./utils/common";
-import { SpanModel } from "./utils/gliner/model";
+import { loadTable, loadTokenizer, loadGliner, loadApolloClient, toHex, toBytes } from "./utils/common";
 import { UserAttributes, TablePair } from "./types";
 import { constants } from "./constants";
 
 
 const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
-    //env.allowLocalModels = true;
     console.time('modelMiddleware');
     console.log("Starting model loads");
 
     const clipDir = path.join(process.env.ROOT_DIR ?? ".", "clip_model");
-    const clipTokenizerPath = path.join(clipDir, "tokenizer.json");
-    const clipTokenizerConfigPath = path.join(clipDir, "tokenizer_config.json");
     const clipPath = path.join(clipDir, "clip_text.onnx");
     const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model");
-    const glinerTokenizerPath = path.join(glinerDir, "tokenizer.json");
-    const glinerTokenizerConfigPath = path.join(glinerDir, "tokenizer_config.json");
     const glinerPath = path.join(glinerDir, "gliner.onnx");
 
-    const clipTokenizer = Tokenizer.fromFile(clipTokenizerPath);
+    const clipTokenizerPromise = loadTokenizer(
+        path.join(clipDir, "tokenizer.json"),
+        path.join(clipDir, "tokenizer_config.json")
+    );
+    const glinerTokenizerPromise = loadTokenizer(
+        path.join(glinerDir, "tokenizer.json"),
+        path.join(glinerDir, "tokenizer_config.json")
+    );
 
-    const tokenConfigResponse = JSON.parse(fs.readFileSync(clipTokenizerConfigPath, 'utf-8'));
-    console.log(tokenConfigResponse);
-    console.timeLog("modelMiddleware", "Just loaded CLIP tokenizer(s)");
-    const clipSession = await InferenceSession.create(
+    const clipSessionPromise = InferenceSession.create(
         clipPath,
         { executionProviders: ['cpu'], graphOptimizationLevel: 'basic', interOpNumThreads: 1, intraOpNumThreads: 1}
     );
-    console.timeLog("modelMiddleware", "Just loaded clipSession");
-    // const tokenizerPromise = CLIPTokenizer.from_pretrained(clipDir, {
-    //     local_files_only: true
-    // });
+    const glinerModelPromise = loadGliner(glinerPath, glinerTokenizerPromise);
 
-
-    // const glinerModel = new Gliner({
-    //     tokenizerPath: glinerDir,
-    //     onnxSettings: {
-    //         modelPath: glinerPath,
-    //         executionProvider: 'cpu',
-    //         fetchBinary: false,
-    //         multiThread: false,
-    //         maxThreads: 1,
-    //     },
-    //     transformersSettings: {
-    //         allowLocalModels: true,
-    //         useBrowserCache: false,
-    //     }
-    // });
-    const glinerTokenizer = Tokenizer.fromFile(glinerTokenizerPath);
-    console.timeLog("modelMiddleware", "Just loaded GLiNER tokenizer");
-
-    const glinerDirect = await InferenceSession.create(
-        glinerPath,
-        { executionProviders: ['cpu'], graphOptimizationLevel: 'basic', interOpNumThreads: 1, intraOpNumThreads: 1}
-    );
-    console.timeLog("modelMiddleware", "Just loaded glinerDirect");
-
-    const glinerModel = new SpanModel(glinerDirect, glinerTokenizer);
-
-    console.timeLog("modelMiddleware", "Just loaded glinerModel");
-
-    //const initPromise = initGliner(glinerModel);
-
-    console.timeEnd("modelMiddleware");
-    console.log("Done with model async loads");
-
-    //reqCtx.set("clip_session_promise", clipSessionPromise);
-    //reqCtx.set("clip_tokenizer_promise", tokenizerPromise);
-    //reqCtx.set("gliner_model", glinerModel);
-    //reqCtx.set("gliner_init_promise", initPromise);
+    reqCtx.set("clip_session_promise", clipSessionPromise);
+    reqCtx.set("clip_tokenizer_promise", clipTokenizerPromise);
+    reqCtx.set("gliner_model_promise", glinerModelPromise);
     await next();
 };
 

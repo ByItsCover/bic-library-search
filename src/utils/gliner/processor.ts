@@ -1,4 +1,4 @@
-import { Tokenizer } from "tokenizers";
+import { Tokenizer } from "@huggingface/tokenizers";
 import { ProcessBatch} from "../../types";
 
 export class WhitespaceTokenSplitter {
@@ -91,15 +91,15 @@ export class Processor {
         return [inputTexts, textLengths, promptLengths];
     }
 
-    async encodeInputs(
+    encodeInputs(
         texts: string[][],
         promptLengths: number[] | null = null,
-    ): Promise<[number[][], number[][], number[][]]> {
+    ): [number[][], number[][], number[][]] {
         let wordsMasks: number[][] = [];
         let inputsIds: number[][] = [];
         let attentionMasks: number[][] = [];
 
-        const sepTokenId = this.tokenizer.tokenToId('[SEP]') ?? 2;
+        const separatorId = this.tokenizer.token_to_id('[SEP]') ?? 2;
 
         for (let id = 0; id < texts.length; id++) {
             let promptLength = promptLengths ? promptLengths[id] : 0;
@@ -108,15 +108,12 @@ export class Processor {
             let inputIds: number[] = [1];
             let attentionMask: number[] = [1];
 
-            const tokenResponses = await this.tokenizer.encodeBatch(tokenizedInputs);
-
             let c = 1;
-            for (let ind = 0; ind < tokenResponses.length; ind++) {
-                const tokens = tokenResponses[ind];
-                let wordTokens = tokens.getIds().slice(1, -1);
+            tokenizedInputs.forEach((word, wordId) => {
+                let wordTokens = this.tokenizer.encode(word).ids.slice(1, -1);
                 wordTokens.forEach((token: number, tokenId: number) => {
                     attentionMask.push(1);
-                    if (ind < promptLength) {
+                    if (wordId < promptLength) {
                         wordsMask.push(0);
                     } else if (tokenId === 0) {
                         wordsMask.push(c);
@@ -126,10 +123,9 @@ export class Processor {
                     }
                     inputIds.push(token);
                 });
-            }
-
+            });
             wordsMask.push(0);
-            inputIds.push(sepTokenId);
+            inputIds.push(separatorId);
             attentionMask.push(1);
 
             wordsMasks.push(wordsMask);
@@ -189,7 +185,7 @@ export class SpanProcessor extends Processor {
         return { spanIdxs, spanMasks };
     }
 
-    async prepareBatch(texts: string[], entities: string[]): Promise<ProcessBatch> {
+    prepareBatch(texts: string[], entities: string[]): ProcessBatch {
         const [batchTokens, batchWordsStartIdx, batchWordsEndIdx]: [
             string[][],
             number[][],
@@ -200,7 +196,7 @@ export class SpanProcessor extends Processor {
             this.prepareTextInputs(batchTokens, entities);
 
         let [inputsIds, attentionMasks, wordsMasks]: [number[][], number[][], number[][]] =
-            await this.encodeInputs(inputTokens, promptLengths);
+            this.encodeInputs(inputTokens, promptLengths);
 
         inputsIds = this.padArray(inputsIds);
         attentionMasks = this.padArray(attentionMasks);

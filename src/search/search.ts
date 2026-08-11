@@ -3,8 +3,8 @@ import { S3Client } from "@aws-sdk/client-s3";
 import * as lancedb from "@lancedb/lancedb"
 import { ApolloClient } from "@apollo/client";
 import { InferenceSession } from "onnxruntime-node";
-import { Gliner } from "gliner/node";
-import { PreTrainedTokenizer } from "@huggingface/transformers";
+import { Tokenizer } from "@huggingface/tokenizers";
+import { SpanModel } from "../utils/gliner/model";
 import { embedText, extractNER } from "./model_helper";
 import vectorSearch from "./vector_search";
 import keywordSearch from "./keyword_search";
@@ -26,15 +26,14 @@ const search = async (reqCtx : RequestContext) => {
 
     const userAttributes = reqCtx.get("user_attributes") as UserAttributes | null;
     const clipSessionPromise = reqCtx.get("clip_session_promise") as Promise<InferenceSession>;
-    const clipTokenizerPromise = reqCtx.get("clip_tokenizer_promise") as Promise<PreTrainedTokenizer>;
-    const glinerModel = reqCtx.get("gliner_model") as Gliner;
-    const glinerInitPromise = reqCtx.get("gliner_init_promise") as Promise<void>;
+    const clipTokenizerPromise = reqCtx.get("clip_tokenizer_promise") as Promise<Tokenizer>;
+    const glinerModelPromise = reqCtx.get("gliner_model_promise") as Promise<SpanModel>;
     const coversTablePromise = reqCtx.get("covers_table_promise") as Promise<lancedb.Table>;
     const feedbackTablePromise = reqCtx.get("feedback_table_promise") as Promise<lancedb.Table>;
     const hardcoverClientPromise = reqCtx.get("hardcover_client_promise") as Promise<ApolloClient>;
     const s3Client = reqCtx.get("s3_client") as S3Client;
 
-    const nerResPromise = extractNER(body.query, glinerModel, glinerInitPromise);
+    const nerResPromise = extractNER(body.query, glinerModelPromise);
     const embedResPromise = embedText(body.query, clipSessionPromise, clipTokenizerPromise);
 
     const [vectorResult, keywordResult] = await Promise.all([

@@ -1,8 +1,8 @@
 import ort from "onnxruntime-node";
-import { Tokenizer } from "tokenizers";
+import { Tokenizer } from "@huggingface/tokenizers";
 import { SpanProcessor, WhitespaceTokenSplitter } from "./processor";
 import { SpanDecoder } from "./decoder";
-import { ProcessBatch, RawInferenceResult } from "../../types";
+import { IEntityResult, InferenceResultMultiple, ProcessBatch, RawInferenceResult } from "../../types";
 
 export class SpanModel {
     processor: SpanProcessor;
@@ -49,14 +49,32 @@ export class SpanModel {
         return feeds;
     }
 
+    mapRawResultToResponse(rawResult: RawInferenceResult): InferenceResultMultiple {
+        const response: InferenceResultMultiple = [];
+        for (const individualResult of rawResult) {
+            const entityResult: IEntityResult[] = individualResult.map(
+                ([spanText, start, end, label, score]) => ({
+                    spanText,
+                    start,
+                    end,
+                    label,
+                    score,
+                }),
+            );
+            response.push(entityResult);
+        }
+
+        return response;
+    }
+
     async inference(
         texts: string[],
         entities: string[],
         flatNer: boolean = false,
         threshold: number = 0.5,
         multiLabel: boolean = false,
-    ): Promise<RawInferenceResult> {
-        let batch = await this.processor.prepareBatch(texts, entities);
+    ): Promise<InferenceResultMultiple> {
+        let batch = this.processor.prepareBatch(texts, entities);
         let feeds: Record<string, ort.Tensor> = this.prepareInputs(batch);
         const results: Record<string, ort.Tensor> = await this.onnxSession.run(feeds);
         const modelOutput: any = results["logits"].data;
@@ -83,6 +101,6 @@ export class SpanModel {
             multiLabel,
         );
 
-        return decodedSpans;
+        return this.mapRawResultToResponse(decodedSpans);
     }
 }

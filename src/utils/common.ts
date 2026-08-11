@@ -1,9 +1,12 @@
 import { Connection } from "@lancedb/lancedb";
-import { Gliner } from "gliner/node";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { BatchHttpLink } from "@apollo/client/link/batch-http";
+import { InferenceSession } from "onnxruntime-node";
+import { Tokenizer } from "@huggingface/tokenizers";
+import { readFile } from "fs/promises";
 import { parse } from "uuid";
 import { CoverResult } from "../types";
+import {SpanModel} from "./gliner/model";
 
 
 const loadTable = async (table_name: string, dbPromise: Promise<Connection>) => {
@@ -11,13 +14,21 @@ const loadTable = async (table_name: string, dbPromise: Promise<Connection>) => 
     return await db.openTable(table_name);
 }
 
-const initGliner = async (glinerModel: Gliner) => {
-    try {
-        await glinerModel.initialize();
-    } catch (error) {
-        console.error("Gliner initialize failed", error);
-        throw error;
-    }
+const loadTokenizer = async (mainPath: string, configPath: string) => {
+    const mainPromise = readFile(mainPath, 'utf-8');
+    const configPromise = readFile(configPath, 'utf-8');
+
+    const tokenizerJson = JSON.parse(await mainPromise);
+    const tokenizerConfigJson = JSON.parse(await configPromise);
+    return new Tokenizer(tokenizerJson, tokenizerConfigJson);
+}
+
+const loadGliner = async (modelPath: string, tokenizerPromise: Promise<Tokenizer>) => {
+    const session = await InferenceSession.create(
+        modelPath,
+        { executionProviders: ['cpu'], graphOptimizationLevel: 'basic', interOpNumThreads: 1, intraOpNumThreads: 1}
+    );
+    return new SpanModel(session, await tokenizerPromise)
 }
 
 const loadApolloClient = async (uri: string, secretPromise: Promise<string | Uint8Array<ArrayBufferLike> | undefined>) => {
@@ -102,4 +113,4 @@ const toBytes = (uuid: string) => {
     return parse(uuid);
 }
 
-export { loadTable, initGliner, loadApolloClient, toHex, toBytes, mergeResults, normalize };
+export { loadTable, loadTokenizer, loadGliner, loadApolloClient, toHex, toBytes, mergeResults, normalize };
