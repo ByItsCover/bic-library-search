@@ -1,6 +1,7 @@
 import { Tokenizer } from "@huggingface/tokenizers";
 import { ProcessBatch} from "../../types";
 
+
 export class WhitespaceTokenSplitter {
     private whitespacePattern: RegExp;
 

@@ -5,8 +5,9 @@ import { InferenceSession } from "onnxruntime-node";
 import { Tokenizer } from "@huggingface/tokenizers";
 import { readFile } from "fs/promises";
 import { parse } from "uuid";
+import { SpanModel } from "./gliner/model";
+import { ClipTokenizer } from "./clip/tokenizer";
 import { CoverResult } from "../types";
-import {SpanModel} from "./gliner/model";
 
 
 const loadTable = async (table_name: string, dbPromise: Promise<Connection>) => {
@@ -21,6 +22,18 @@ const loadTokenizer = async (mainPath: string, configPath: string) => {
     const tokenizerJson = JSON.parse(await mainPromise);
     const tokenizerConfigJson = JSON.parse(await configPromise);
     return new Tokenizer(tokenizerJson, tokenizerConfigJson);
+}
+
+const loadClipTokenizer = async (mainPath: string, configPath: string) => {
+    const mainPromise = readFile(mainPath, 'utf-8');
+    const configPromise = readFile(configPath, 'utf-8');
+
+    const tokenizerJson = JSON.parse(await mainPromise);
+    const tokenizerConfigJson = JSON.parse(await configPromise);
+    return new ClipTokenizer(
+        new Tokenizer(tokenizerJson, tokenizerConfigJson),
+        tokenizerConfigJson["model_max_length"]
+    );
 }
 
 const loadGliner = async (modelPath: string, tokenizerPromise: Promise<Tokenizer>) => {
@@ -113,4 +126,4 @@ const toBytes = (uuid: string) => {
     return parse(uuid);
 }
 
-export { loadTable, loadTokenizer, loadGliner, loadApolloClient, toHex, toBytes, mergeResults, normalize };
+export { loadTable, loadTokenizer, loadClipTokenizer, loadGliner, loadApolloClient, toHex, toBytes, mergeResults, normalize };

@@ -1,5 +1,6 @@
 import { RawInferenceResult, Spans } from "../../types";
 
+
 // Check if one span is nested inside the other
 const isNested = (idx1: number[], idx2: number[]): boolean => {
     return (idx1[0] <= idx2[0] && idx1[1] >= idx2[1]) || (idx2[0] <= idx1[0] && idx2[1] >= idx1[1]);

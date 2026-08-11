@@ -4,6 +4,7 @@ import { SpanProcessor, WhitespaceTokenSplitter } from "./processor";
 import { SpanDecoder } from "./decoder";
 import { IEntityResult, InferenceResultMultiple, ProcessBatch, RawInferenceResult } from "../../types";
 
+
 export class SpanModel {
     processor: SpanProcessor;
     decoder: SpanDecoder;
