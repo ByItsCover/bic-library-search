@@ -1,18 +1,18 @@
-import { PreTrainedTokenizer } from "@huggingface/transformers";
+import { Tokenizer } from "@huggingface/tokenizers";
 import { InferenceSession, Tensor } from "onnxruntime-node";
-import { Gliner } from "gliner/node";
-import { NER_QUERY_LABELS, NER_SEARCH_LABELS } from "../constants";
-import {NerResult} from "../types";
+import { SpanModel } from "../utils/gliner/model";
+import { NerResult } from "../types";
+import { NER_QUERY_LABELS, NER_SEARCH_LABELS, constants } from "../constants";
 
 
-const embedText = async (text: string, clipSessionPromise: Promise<InferenceSession>, tokenizerPromise: Promise<PreTrainedTokenizer>) => {
+const embedText = async (text: string, clipSessionPromise: Promise<InferenceSession>, tokenizerPromise: Promise<Tokenizer>) => {
     console.time('embedText');
     console.log("Starting tokenizer load");
     const tokenizer = await tokenizerPromise;
     console.timeLog("embedText", "Tokenizer load complete");
 
-    const tokens = tokenizer(text, {return_tensor: true, padding: 'max_length'});
-    const tokensTensor = new Tensor(tokens.input_ids.type, [...tokens.input_ids.data], tokens.input_ids.dims);
+    const tokens = tokenizer.encode(text);
+    const tokensTensor = new Tensor(constants.tokens_type, tokens.ids, [1, tokens.ids.length]);
 
     console.timeLog("embedText", "Starting clip session load");
     const clipSession = await clipSessionPromise;
@@ -24,19 +24,18 @@ const embedText = async (text: string, clipSessionPromise: Promise<InferenceSess
     return Array.prototype.slice.call(embedRes["embeddings"].data);
 };
 
-const extractNER = async (text: string, glinerModel: Gliner, initPromise: Promise<void>) => {
+const extractNER = async (text: string, glinerModelTask: Promise<SpanModel>) => {
     console.log("Text:", text);
-    console.log("Gliner model:", glinerModel);
 
     console.time('extractNER');
-    console.log("Starting gliner initialize");
-    await initPromise;
+    console.log("Starting gliner load");
+    const glinerModel = await glinerModelTask;
     console.timeLog("extractNER", "Gliner initialize complete");
 
-    const nerRes = await glinerModel.inference({
-        texts: [text],
-        entities: NER_QUERY_LABELS
-    });
+    const nerRes = await glinerModel.inference(
+        [text],
+        NER_QUERY_LABELS
+    );
     console.log("Ner res:", nerRes);
     const nerResults: NerResult[] = nerRes[0].filter(res => NER_SEARCH_LABELS.includes(res.label))
         .map((res) => ({
