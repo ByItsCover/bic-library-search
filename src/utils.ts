@@ -1,9 +1,17 @@
+import { Connection } from "@lancedb/lancedb";
 import { Gliner } from "gliner/node";
+import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { BatchHttpLink } from "@apollo/client/link/batch-http";
 import { parse } from "uuid";
 import { CoverResult } from "./types";
 
 
-const glinerInit = async (glinerModel: Gliner) => {
+const loadTable = async (table_name: string, dbPromise: Promise<Connection>) => {
+    const db = await dbPromise;
+    return await db.openTable(table_name);
+}
+
+const initGliner = async (glinerModel: Gliner) => {
     try {
         await glinerModel.initialize();
         console.timeLog("modelMiddleware", "Gliner model initialized now.");
@@ -11,6 +19,20 @@ const glinerInit = async (glinerModel: Gliner) => {
         console.error("Gliner initialize failed", error);
         throw error;
     }
+}
+
+const loadApolloClient = async (uri: string, secretPromise: Promise<string | Uint8Array<ArrayBufferLike> | undefined>) => {
+    const secretValue = await secretPromise;
+    const batchLink = new BatchHttpLink({
+        uri: uri,
+        headers: {
+            authorization: `Bearer ${secretValue}`,
+        },
+    });
+    return new ApolloClient({
+        link: batchLink,
+        cache: new InMemoryCache(),
+    });
 }
 
 const rrfScore = (rank: number, weight: number, k: number) => {
@@ -81,4 +103,4 @@ const toBytes = (uuid: string) => {
     return parse(uuid);
 }
 
-export { glinerInit, toHex, toBytes, mergeResults, normalize };
+export { loadTable, initGliner, loadApolloClient, toHex, toBytes, mergeResults, normalize };

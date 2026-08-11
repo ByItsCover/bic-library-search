@@ -7,7 +7,7 @@ import {
 } from "../types";
 
 
-const keywordSearch = async (nerPairsPromise: Promise<NerResult[]>, hardcoverClient: ApolloClient) => {
+const keywordSearch = async (nerPairsPromise: Promise<NerResult[]>, hardcoverClientPromise: Promise<ApolloClient>) => {
     const nerPairs = await nerPairsPromise;
     let keywordRes: CoverResult[] = [];
     if (nerPairs.length === 0) {
@@ -41,6 +41,7 @@ const keywordSearch = async (nerPairsPromise: Promise<NerResult[]>, hardcoverCli
             }
         }
     `;
+    const hardcoverClient = await hardcoverClientPromise;
     const { data: idData } = await hardcoverClient.query({query: GET_KEYWORD_RESULTS});
     if (idData === undefined || idData.search.ids.length === 0) {
         return keywordRes;

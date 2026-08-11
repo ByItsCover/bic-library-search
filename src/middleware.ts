@@ -2,14 +2,12 @@ import type { Middleware } from "@aws-lambda-powertools/event-handler/types";
 import { getSecret } from "@aws-lambda-powertools/parameters/secrets";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 import { S3Client } from "@aws-sdk/client-s3";
-import { BatchHttpLink } from "@apollo/client/link/batch-http";
-import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { InferenceSession } from "onnxruntime-node";
 import { Gliner } from "gliner/node";
 import { CLIPTokenizer, env } from "@huggingface/transformers";
 import * as lancedb from "@lancedb/lancedb";
 import * as path from 'path';
-import { glinerInit, toHex, toBytes } from "./utils";
+import { loadTable, initGliner, loadApolloClient, toHex, toBytes } from "./utils";
 import { UserAttributes, TablePair } from "./types";
 import { constants } from "./constants";
 
@@ -47,7 +45,7 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     });
     console.timeLog("modelMiddleware", "Just loaded glinerModel");
 
-    var initPromise = glinerInit(glinerModel);
+    const initPromise = initGliner(glinerModel);
 
     console.timeEnd("modelMiddleware");
     console.log("Done with model async loads");
@@ -60,22 +58,16 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
 };
 
 const lanceMiddleware: Middleware = async ({ reqCtx, next }) => {
-    const db = await lancedb.connect(process.env.DB_URI);
+    const dbPromise = lancedb.connect(process.env.DB_URI);
     const tablesMap: TablePair[] = [
         {var_name: "covers_table", table_name: constants.covers_table_name},
         {var_name: "feedback_table", table_name: constants.feedback_table_name},
     ];
 
-    await Promise.all(tablesMap.map(async (pair) => {
-        try {
-            const table = await db.openTable(pair.table_name);
-            reqCtx.set(pair.var_name, table);
-        } catch (error) {
-            console.error(`${pair.table_name} Table open failed`, error);
-            reqCtx.set(pair.var_name, null);
-        }
-    }));
-
+    tablesMap.forEach(pair => {
+        const tablePromise = loadTable(pair.table_name, dbPromise);
+        reqCtx.set(`${pair.var_name}_promise`, tablePromise);
+    })
     await next();
 };
 
@@ -115,18 +107,9 @@ const customAuthMiddleware: Middleware = async ({ reqCtx, next }) => {
 };
 
 const hardcoverMiddleware: Middleware = async ({ reqCtx, next }) => {
-    const secretValue = await getSecret(process.env.HARDCOVER_SECRET_NAME);
-    const batchLink = new BatchHttpLink({
-        uri: constants.hardcover_url,
-        headers: {
-            authorization: `Bearer ${secretValue}`,
-        },
-    });
-    const client = new ApolloClient({
-        link: batchLink,
-        cache: new InMemoryCache(),
-    });
-    reqCtx.set('hardcover_client', client);
+    const secretPromise = getSecret(process.env.HARDCOVER_SECRET_NAME);
+    const clientPromise = loadApolloClient(constants.hardcover_url, secretPromise);
+    reqCtx.set('hardcover_client_promise', clientPromise);
     await next();
 };
 
