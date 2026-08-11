@@ -8,6 +8,7 @@ import { InferenceSession } from "onnxruntime-node";
 import { Tokenizer } from "tokenizers";
 import * as lancedb from "@lancedb/lancedb";
 import * as path from 'path';
+import fs from 'fs';
 import { loadTable, initGliner, loadApolloClient, toHex, toBytes } from "./utils/common";
 import { SpanModel } from "./utils/gliner/model";
 import { UserAttributes, TablePair } from "./types";
@@ -21,13 +22,18 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
 
     const clipDir = path.join(process.env.ROOT_DIR ?? ".", "clip_model");
     const clipTokenizerPath = path.join(clipDir, "tokenizer.json");
+    const clipTokenizerConfigPath = path.join(clipDir, "tokenizer_config.json");
     const clipPath = path.join(clipDir, "clip_text.onnx");
-    const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model")
+    const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model");
     const glinerTokenizerPath = path.join(glinerDir, "tokenizer.json");
+    const glinerTokenizerConfigPath = path.join(glinerDir, "tokenizer_config.json");
     const glinerPath = path.join(glinerDir, "gliner.onnx");
 
     const clipTokenizer = Tokenizer.fromFile(clipTokenizerPath);
-    console.timeLog("modelMiddleware", "Just loaded CLIP tokenizer");
+
+    const tokenConfigResponse = JSON.parse(fs.readFileSync(clipTokenizerConfigPath, 'utf-8'));
+    console.log(tokenConfigResponse);
+    console.timeLog("modelMiddleware", "Just loaded CLIP tokenizer(s)");
     const clipSession = await InferenceSession.create(
         clipPath,
         { executionProviders: ['cpu'], graphOptimizationLevel: 'basic', interOpNumThreads: 1, intraOpNumThreads: 1}
