@@ -1,5 +1,17 @@
+import { Gliner } from "gliner/node";
 import { parse } from "uuid";
 import { CoverResult } from "./types";
+
+
+const glinerInit = async (glinerModel: Gliner) => {
+    try {
+        await glinerModel.initialize();
+        console.timeLog("modelMiddleware", "Gliner model initialized now.");
+    } catch (error) {
+        console.error("Gliner initialize failed", error);
+        throw error;
+    }
+}
 
 const rrfScore = (rank: number, weight: number, k: number) => {
     // rank is 1 for first item, 2 for second, and so on
@@ -69,4 +81,4 @@ const toBytes = (uuid: string) => {
     return parse(uuid);
 }
 
-export { toHex, toBytes, mergeResults, normalize };
+export { glinerInit, toHex, toBytes, mergeResults, normalize };
