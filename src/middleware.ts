@@ -24,7 +24,7 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
 
     const clipSession = await InferenceSession.create(
         clipPath,
-        { executionProviders: ['cpu'], graphOptimizationLevel: 'all', interOpNumThreads: 1, intraOpNumThreads: 1}
+        { executionProviders: ['cpu'], graphOptimizationLevel: 'basic', interOpNumThreads: 1, intraOpNumThreads: 1}
     );
     console.timeLog("modelMiddleware", "Just loaded clipSession");
     const tokenizerPromise = CLIPTokenizer.from_pretrained(clipDir, {
@@ -48,7 +48,7 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     // });
     const glinerDirect = await InferenceSession.create(
         glinerPath,
-        { executionProviders: ['cpu'], graphOptimizationLevel: 'all', interOpNumThreads: 1, intraOpNumThreads: 1}
+        { executionProviders: ['cpu'], graphOptimizationLevel: 'basic', interOpNumThreads: 1, intraOpNumThreads: 1}
     );
     console.timeLog("modelMiddleware", "Just loaded glinerDirect");
 
