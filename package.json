@@ -35,6 +35,7 @@
     "sharp": "^0.35.3",
     "tar": "^7.5.22",
     "tokenizers": "^0.13.3",
+    "tokenizers-linux-x64-gnu": "^0.13.4-rc1",
     "uuid": "^14.0.1"
   },
   "allowScripts": {
