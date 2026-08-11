@@ -5,7 +5,7 @@ import { S3Client } from "@aws-sdk/client-s3";
 import { InferenceSession } from "onnxruntime-node";
 import * as lancedb from "@lancedb/lancedb";
 import * as path from 'path';
-import { loadTable, loadTokenizer, loadGliner, loadApolloClient, toHex, toBytes } from "./utils/common";
+import { loadTable, loadTokenizer, loadClipTokenizer, loadGliner, loadApolloClient, toHex, toBytes } from "./utils/common";
 import { UserAttributes, TablePair } from "./types";
 import { constants } from "./constants";
 
@@ -19,7 +19,7 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model");
     const glinerPath = path.join(glinerDir, "gliner.onnx");
 
-    const clipTokenizerPromise = loadTokenizer(
+    const clipTokenizerPromise = loadClipTokenizer(
         path.join(clipDir, "tokenizer.json"),
         path.join(clipDir, "tokenizer_config.json")
     );

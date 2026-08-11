@@ -1,18 +1,18 @@
-import { Tokenizer } from "@huggingface/tokenizers";
 import { InferenceSession, Tensor } from "onnxruntime-node";
 import { SpanModel } from "../utils/gliner/model";
+import { ClipTokenizer } from "../utils/clip/tokenizer";
 import { NerResult } from "../types";
 import { NER_QUERY_LABELS, NER_SEARCH_LABELS, constants } from "../constants";
 
 
-const embedText = async (text: string, clipSessionPromise: Promise<InferenceSession>, tokenizerPromise: Promise<Tokenizer>) => {
+const embedText = async (text: string, clipSessionPromise: Promise<InferenceSession>, tokenizerPromise: Promise<ClipTokenizer>) => {
     console.time('embedText');
     console.log("Starting tokenizer load");
     const tokenizer = await tokenizerPromise;
     console.timeLog("embedText", "Tokenizer load complete");
 
-    const tokens = tokenizer.encode(text);
-    const tokensTensor = new Tensor(constants.tokens_type, tokens.ids, [1, tokens.ids.length]);
+    const tokenIds = tokenizer.encode(text);
+    const tokensTensor = new Tensor(constants.tokens_type, tokenIds, [1, tokenIds.length]);
 
     console.timeLog("embedText", "Starting clip session load");
     const clipSession = await clipSessionPromise;

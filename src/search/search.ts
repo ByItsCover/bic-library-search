@@ -14,6 +14,7 @@ import { mergeResults } from "../utils/common";
 import { CoverResult, UserAttributes } from "../types";
 import { constants } from "../constants";
 import logger from "../logger";
+import {ClipTokenizer} from "../utils/clip/tokenizer";
 
 
 const search = async (reqCtx : RequestContext) => {
@@ -26,7 +27,7 @@ const search = async (reqCtx : RequestContext) => {
 
     const userAttributes = reqCtx.get("user_attributes") as UserAttributes | null;
     const clipSessionPromise = reqCtx.get("clip_session_promise") as Promise<InferenceSession>;
-    const clipTokenizerPromise = reqCtx.get("clip_tokenizer_promise") as Promise<Tokenizer>;
+    const clipTokenizerPromise = reqCtx.get("clip_tokenizer_promise") as Promise<ClipTokenizer>;
     const glinerModelPromise = reqCtx.get("gliner_model_promise") as Promise<SpanModel>;
     const coversTablePromise = reqCtx.get("covers_table_promise") as Promise<lancedb.Table>;
     const feedbackTablePromise = reqCtx.get("feedback_table_promise") as Promise<lancedb.Table>;
