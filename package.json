@@ -34,6 +34,7 @@
     "onnxruntime-web": "^1.27.0",
     "sharp": "^0.35.3",
     "tar": "^7.5.22",
+    "tokenizers": "^0.13.3",
     "uuid": "^14.0.1"
   },
   "allowScripts": {

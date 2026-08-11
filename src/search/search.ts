@@ -10,7 +10,7 @@ import vectorSearch from "./vector_search";
 import keywordSearch from "./keyword_search";
 import { userRatings } from "./user_query";
 import uploadBooks from "./embed";
-import { mergeResults } from "../utils";
+import { mergeResults } from "../utils/common";
 import { CoverResult, UserAttributes } from "../types";
 import { constants } from "../constants";
 import logger from "../logger";

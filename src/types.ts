@@ -69,3 +69,31 @@ export type TablePair = {
     var_name: string;
     table_name: string;
 };
+
+export type RawInferenceResult = [string, number, number, string, number][][];
+
+export interface IEntityResult {
+    spanText: string;
+    start: number;
+    end: number;
+    label: string;
+    score: number;
+}
+
+export type InferenceResultSingle = IEntityResult[];
+export type InferenceResultMultiple = InferenceResultSingle[];
+
+export type Spans = [string, number, number, string, number][];
+
+export type ProcessBatch = {
+    inputsIds: number[][];
+    attentionMasks: number[][];
+    wordsMasks: number[][];
+    textLengths: number[],
+    spanIdxs: number[][][],
+    spanMasks: boolean[][],
+    idToClass: Record<number, string>,
+    batchTokens: string[][],
+    batchWordsStartIdx: number[][],
+    batchWordsEndIdx: number[][],
+}

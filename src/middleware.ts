@@ -3,34 +3,40 @@ import { getSecret } from "@aws-lambda-powertools/parameters/secrets";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 import { S3Client } from "@aws-sdk/client-s3";
 import { InferenceSession } from "onnxruntime-node";
-import { Gliner } from "gliner/node";
-import { CLIPTokenizer, env } from "@huggingface/transformers";
+// import { Gliner } from "gliner/node";
+// import { CLIPTokenizer, env } from "@huggingface/transformers";
+import { Tokenizer } from "tokenizers";
 import * as lancedb from "@lancedb/lancedb";
 import * as path from 'path';
-import { loadTable, initGliner, loadApolloClient, toHex, toBytes } from "./utils";
+import { loadTable, initGliner, loadApolloClient, toHex, toBytes } from "./utils/common";
+import { SpanModel } from "./utils/gliner/model";
 import { UserAttributes, TablePair } from "./types";
 import { constants } from "./constants";
 
 
 const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
-    env.allowLocalModels = true;
+    //env.allowLocalModels = true;
     console.time('modelMiddleware');
     console.log("Starting model loads");
 
     const clipDir = path.join(process.env.ROOT_DIR ?? ".", "clip_model");
+    const clipTokenizerPath = path.join(clipDir, "tokenizer.json");
     const clipPath = path.join(clipDir, "clip_text.onnx");
     const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model")
+    const glinerTokenizerPath = path.join(glinerDir, "tokenizer.json");
     const glinerPath = path.join(glinerDir, "gliner.onnx");
 
+    const clipTokenizer = Tokenizer.fromFile(clipTokenizerPath);
+    console.timeLog("modelMiddleware", "Just loaded CLIP tokenizer");
     const clipSession = await InferenceSession.create(
         clipPath,
         { executionProviders: ['cpu'], graphOptimizationLevel: 'basic', interOpNumThreads: 1, intraOpNumThreads: 1}
     );
     console.timeLog("modelMiddleware", "Just loaded clipSession");
-    const tokenizerPromise = CLIPTokenizer.from_pretrained(clipDir, {
-        local_files_only: true
-    });
-    console.timeLog("modelMiddleware", "Just loaded tokenizer");
+    // const tokenizerPromise = CLIPTokenizer.from_pretrained(clipDir, {
+    //     local_files_only: true
+    // });
+
 
     // const glinerModel = new Gliner({
     //     tokenizerPath: glinerDir,
@@ -46,11 +52,18 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     //         useBrowserCache: false,
     //     }
     // });
+    const glinerTokenizer = Tokenizer.fromFile(glinerTokenizerPath);
+    console.timeLog("modelMiddleware", "Just loaded GLiNER tokenizer");
+
     const glinerDirect = await InferenceSession.create(
         glinerPath,
         { executionProviders: ['cpu'], graphOptimizationLevel: 'basic', interOpNumThreads: 1, intraOpNumThreads: 1}
     );
     console.timeLog("modelMiddleware", "Just loaded glinerDirect");
+
+    const glinerModel = new SpanModel(glinerDirect, glinerTokenizer);
+
+    console.timeLog("modelMiddleware", "Just loaded glinerModel");
 
     //const initPromise = initGliner(glinerModel);
 
@@ -58,7 +71,7 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     console.log("Done with model async loads");
 
     //reqCtx.set("clip_session_promise", clipSessionPromise);
-    reqCtx.set("clip_tokenizer_promise", tokenizerPromise);
+    //reqCtx.set("clip_tokenizer_promise", tokenizerPromise);
     //reqCtx.set("gliner_model", glinerModel);
     //reqCtx.set("gliner_init_promise", initPromise);
     await next();
