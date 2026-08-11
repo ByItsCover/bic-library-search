@@ -8,7 +8,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "esbuild `find src \\( -name '*.ts' \\)` --bundle --minify --platform=node --target=esnext --outdir=dist --external:@lancedb/lancedb --external:onnxruntime-node --external:@huggingface/transformers --external:gliner"
+    "build": "esbuild `find src \\( -name '*.ts' \\)` --bundle --minify --platform=node --target=esnext --outdir=dist --external:@lancedb/lancedb --external:onnxruntime-node --external:@huggingface/transformers --external:tokenizers-linux-x64-gnu --external:gliner"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.161",
