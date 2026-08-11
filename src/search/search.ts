@@ -25,15 +25,16 @@ const search = async (reqCtx : RequestContext) => {
     let responseCode = 200;
 
     const userAttributes = reqCtx.get("user_attributes") as UserAttributes | null;
-    const clipSession = reqCtx.get("clip_session") as InferenceSession;
-    const clipTokenizer = reqCtx.get("clip_tokenizer") as PreTrainedTokenizer;
+    const clipSessionPromise = reqCtx.get("clip_session_promise") as Promise<InferenceSession>;
+    const clipTokenizerPromise = reqCtx.get("clip_tokenizer_promise") as Promise<PreTrainedTokenizer>;
     const glinerModel = reqCtx.get("gliner_model") as Gliner;
+    const glinerInitPromise = reqCtx.get("gliner_init_promise") as Promise<void>;
     const coversTable = reqCtx.get("covers_table") as lancedb.Table | null;
     const feedbackTable = reqCtx.get("feedback_table") as lancedb.Table | null;
     const hardcoverClient = reqCtx.get("hardcover_client") as ApolloClient;
     const s3Client = reqCtx.get("s3_client") as S3Client;
 
-    const nerResPromise = extractNER(body.query, glinerModel);
+    const nerResPromise = extractNER(body.query, glinerModel, glinerInitPromise);
 
     if (coversTable === null) {
         logger.info("Cover table has yet to be created. Returning only NER results");
@@ -41,7 +42,7 @@ const search = async (reqCtx : RequestContext) => {
 
         searchResults = await keywordSearch(nerResPromise, hardcoverClient);
     } else {
-        const embedResPromise = embedText(body.query, clipSession, clipTokenizer);
+        const embedResPromise = embedText(body.query, clipSessionPromise, clipTokenizerPromise);
         const [vectorResult, keywordResult] = await Promise.all([
             vectorSearch(embedResPromise, coversTable),
             keywordSearch(nerResPromise, hardcoverClient)

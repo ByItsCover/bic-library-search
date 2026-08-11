@@ -9,7 +9,7 @@ import { Gliner } from "gliner/node";
 import { CLIPTokenizer, env } from "@huggingface/transformers";
 import * as lancedb from "@lancedb/lancedb";
 import * as path from 'path';
-import { toHex, toBytes } from "./utils";
+import { glinerInit, toHex, toBytes } from "./utils";
 import { UserAttributes, TablePair } from "./types";
 import { constants } from "./constants";
 
@@ -24,12 +24,12 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model")
     const glinerPath = path.join(glinerDir, "gliner.onnx");
 
-    const clipSession = await InferenceSession.create(
+    const clipSessionPromise = InferenceSession.create(
         clipPath,
         { executionProviders: ['cpu'], graphOptimizationLevel: 'all'}
     );
     console.timeLog("modelMiddleware", "Just loaded clipSession");
-    const tokenizer = await CLIPTokenizer.from_pretrained(clipDir, {
+    const tokenizerPromise = CLIPTokenizer.from_pretrained(clipDir, {
         local_files_only: true
     });
     console.timeLog("modelMiddleware", "Just loaded tokenizer");
@@ -47,20 +47,15 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     });
     console.timeLog("modelMiddleware", "Just loaded glinerModel");
 
-    try {
-        await glinerModel.initialize();
-        console.timeLog("modelMiddleware", "Gliner model initialized now.");
-    } catch (error) {
-        console.error("Gliner initialize failed", error);
-        throw error;
-    }
+    var initPromise = glinerInit(glinerModel);
 
     console.timeEnd("modelMiddleware");
-    console.log("Done with model loads");
+    console.log("Done with model async loads");
 
-    reqCtx.set("clip_session", clipSession);
-    reqCtx.set("clip_tokenizer", tokenizer);
+    reqCtx.set("clip_session_promise", clipSessionPromise);
+    reqCtx.set("clip_tokenizer_promise", tokenizerPromise);
     reqCtx.set("gliner_model", glinerModel);
+    reqCtx.set("gliner_init_promise", initPromise);
     await next();
 };
 
