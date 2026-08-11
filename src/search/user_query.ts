@@ -4,12 +4,20 @@ import logger from "../logger";
 
 
 const userRatings = async (
-    results: CoverResult[], userAttributes: UserAttributes, feedbackTable: lancedb.Table
+    results: CoverResult[], userAttributes: UserAttributes, feedbackTablePromise: Promise<lancedb.Table>
 ) => {
     const cover_ids = results.map(cover => String(cover.cover_id));
     const uidQuery = `user_id = X'${userAttributes.uid_hex}'`;
     const cidQuery = `cover_id IN (${cover_ids.join(', ')})`;
     const typeQuery = `type = '${Feedback[Feedback.Rating]}'`;
+
+    let feedbackTable: lancedb.Table;
+    try {
+        feedbackTable = await feedbackTablePromise;
+    } catch (error) {
+        console.error("feedback Table open failed", error);
+        return results;
+    }
 
     logger.info('Trying feedback table query');
     const tableRes: FeedbackResult[] = await feedbackTable.query()
