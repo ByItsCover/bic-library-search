@@ -19,6 +19,7 @@ const uploadBooks = async (nerItems: CoverResult[], s3Client: S3Client) => {
         return;
     }
 
+    console.time('uploadBooks');
     logger.info(`"Number of embeddings to upload: ${nerItems.length}`);
 
     let successfulCount = 0;
@@ -61,6 +62,8 @@ or the multipart upload API (5TB max).`,
     });
 
     await Promise.all(s3Promises);
+    console.timeEnd("uploadBooks");
+    console.log("Book s3 upload done.");
     logger.info(`Number of embedding uploaded: ${successfulCount}`);
 };
 

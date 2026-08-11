@@ -8,6 +8,7 @@ import {
 
 
 const keywordSearch = async (nerPairsPromise: Promise<NerResult[]>, hardcoverClientPromise: Promise<ApolloClient>) => {
+    console.time('keywordSearch');
     const nerPairs = await nerPairsPromise;
     let keywordRes: CoverResult[] = [];
     if (nerPairs.length === 0) {
@@ -41,7 +42,9 @@ const keywordSearch = async (nerPairsPromise: Promise<NerResult[]>, hardcoverCli
             }
         }
     `;
+    console.timeLog("keywordSearch", "Starting hardcover client load");
     const hardcoverClient = await hardcoverClientPromise;
+    console.timeLog("keywordSearch", "Hardcover client load complete");
     const { data: idData } = await hardcoverClient.query({query: GET_KEYWORD_RESULTS});
     if (idData === undefined || idData.search.ids.length === 0) {
         return keywordRes;
@@ -90,6 +93,9 @@ const keywordSearch = async (nerPairsPromise: Promise<NerResult[]>, hardcoverCli
     });
     logger.info('Printing NER api results);');
     console.log([...idCoverMap.entries()]);
+
+    console.timeEnd("keywordSearch");
+    console.log("Keyword search done.");
 
     return [...idCoverMap.values().filter(res => res !== null)];
 }
