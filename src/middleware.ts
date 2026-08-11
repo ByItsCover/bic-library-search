@@ -22,9 +22,9 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model")
     const glinerPath = path.join(glinerDir, "gliner.onnx");
 
-    const clipSessionPromise = InferenceSession.create(
+    const clipSession = await InferenceSession.create(
         clipPath,
-        { executionProviders: ['cpu'], graphOptimizationLevel: 'all'}
+        { executionProviders: ['cpu'], graphOptimizationLevel: 'all', interOpNumThreads: 1, intraOpNumThreads: 1}
     );
     console.timeLog("modelMiddleware", "Just loaded clipSession");
     const tokenizerPromise = CLIPTokenizer.from_pretrained(clipDir, {
@@ -32,35 +32,35 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     });
     console.timeLog("modelMiddleware", "Just loaded tokenizer");
 
-    const glinerModel = new Gliner({
-        tokenizerPath: glinerDir,
-        onnxSettings: {
-            modelPath: glinerPath,
-            executionProvider: 'cpu',
-            fetchBinary: false,
-            multiThread: false,
-            maxThreads: 1,
-        },
-        transformersSettings: {
-            allowLocalModels: true,
-            useBrowserCache: false,
-        }
-    });
+    // const glinerModel = new Gliner({
+    //     tokenizerPath: glinerDir,
+    //     onnxSettings: {
+    //         modelPath: glinerPath,
+    //         executionProvider: 'cpu',
+    //         fetchBinary: false,
+    //         multiThread: false,
+    //         maxThreads: 1,
+    //     },
+    //     transformersSettings: {
+    //         allowLocalModels: true,
+    //         useBrowserCache: false,
+    //     }
+    // });
     const glinerDirect = await InferenceSession.create(
         glinerPath,
-        { executionProviders: ['cpu'], graphOptimizationLevel: 'all'}
+        { executionProviders: ['cpu'], graphOptimizationLevel: 'all', interOpNumThreads: 1, intraOpNumThreads: 1}
     );
-    console.timeLog("modelMiddleware", "Just loaded glinerModel + glinerDirect");
+    console.timeLog("modelMiddleware", "Just loaded glinerDirect");
 
-    const initPromise = initGliner(glinerModel);
+    //const initPromise = initGliner(glinerModel);
 
     console.timeEnd("modelMiddleware");
     console.log("Done with model async loads");
 
-    reqCtx.set("clip_session_promise", clipSessionPromise);
+    //reqCtx.set("clip_session_promise", clipSessionPromise);
     reqCtx.set("clip_tokenizer_promise", tokenizerPromise);
-    reqCtx.set("gliner_model", glinerModel);
-    reqCtx.set("gliner_init_promise", initPromise);
+    //reqCtx.set("gliner_model", glinerModel);
+    //reqCtx.set("gliner_init_promise", initPromise);
     await next();
 };
 
