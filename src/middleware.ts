@@ -4,6 +4,7 @@ import { CognitoJwtVerifier } from "aws-jwt-verify";
 import { S3Client } from "@aws-sdk/client-s3";
 import { InferenceSession } from "onnxruntime-node";
 import { Gliner } from "gliner/node";
+import { SpanDecoder } from "gliner/src/lib/decoder";
 import { CLIPTokenizer, env } from "@huggingface/transformers";
 import * as lancedb from "@lancedb/lancedb";
 import * as path from 'path';
@@ -46,7 +47,11 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
             useBrowserCache: false,
         }
     });
-    console.timeLog("modelMiddleware", "Just loaded glinerModel");
+    const glinerDirect = await InferenceSession.create(
+        glinerPath,
+        { executionProviders: ['cpu'], graphOptimizationLevel: 'all'}
+    );
+    console.timeLog("modelMiddleware", "Just loaded glinerModel + glinerDirect");
 
     const initPromise = initGliner(glinerModel);
 
