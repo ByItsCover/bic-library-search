@@ -10,10 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true, 
     "isolatedModules": true, 
-    "outDir": "dist",
-    "paths": {
-      "gliner/src/lib/decoder": ["./node_modules/gliner/src/lib/decoder"]
-    }
+    "outDir": "dist"
   },
   "exclude": ["node_modules", "**/*.test.ts"]
 }
