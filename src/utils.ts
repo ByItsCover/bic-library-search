@@ -14,7 +14,6 @@ const loadTable = async (table_name: string, dbPromise: Promise<Connection>) => 
 const initGliner = async (glinerModel: Gliner) => {
     try {
         await glinerModel.initialize();
-        console.timeLog("modelMiddleware", "Gliner model initialized now.");
     } catch (error) {
         console.error("Gliner initialize failed", error);
         throw error;

@@ -20,7 +20,9 @@ const vectorSearch = async (embeddingPromise: Promise<number[]>, coversTableProm
     }
     console.timeLog("vectorSearch", "Covers table load complete");
 
-    let tableRes: CoverResult[] = await coversTable.search(queryVector)
+    let tableRes: CoverResult[] = await coversTable.query()
+        .nearestTo(queryVector)
+        .distanceType(constants.distance_type)
         .select(["cover_id", "book_id", "isbn_13", "cover_url", "_distance"])
         .limit(constants.vector_query_limit)
         .toArray();

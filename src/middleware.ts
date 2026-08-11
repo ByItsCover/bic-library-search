@@ -37,6 +37,9 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
         onnxSettings: {
             modelPath: glinerPath,
             executionProvider: 'cpu',
+            fetchBinary: false,
+            multiThread: false,
+            maxThreads: 1,
         },
         transformersSettings: {
             allowLocalModels: true,
