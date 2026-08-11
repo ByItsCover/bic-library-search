@@ -35,8 +35,8 @@ const search = async (reqCtx : RequestContext) => {
     const s3Client = reqCtx.get("s3_client") as S3Client;
 
     const nerResPromise = extractNER(body.query, glinerModel, glinerInitPromise);
-
     const embedResPromise = embedText(body.query, clipSessionPromise, clipTokenizerPromise);
+
     const [vectorResult, keywordResult] = await Promise.all([
         vectorSearch(embedResPromise, coversTablePromise),
         keywordSearch(nerResPromise, hardcoverClientPromise)

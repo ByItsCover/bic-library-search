@@ -16,10 +16,11 @@ const embedText = async (text: string, clipSessionPromise: Promise<InferenceSess
 
     console.timeLog("embedText", "Starting clip session load");
     const clipSession = await clipSessionPromise;
-    console.timeEnd("embedText");
-    console.log("Clip session load complete");
+    console.timeLog("embedText", "Clip session load complete");
 
     const embedRes = await clipSession.run({"text": tokensTensor});
+    console.timeEnd("embedText");
+    console.log("Embedding inference done.");
     return Array.prototype.slice.call(embedRes["embeddings"].data);
 };
 
@@ -30,8 +31,7 @@ const extractNER = async (text: string, glinerModel: Gliner, initPromise: Promis
     console.time('extractNER');
     console.log("Starting gliner initialize");
     await initPromise;
-    console.timeEnd("extractNER");
-    console.log("Gliner initialize complete");
+    console.timeLog("extractNER", "Gliner initialize complete");
 
     const nerRes = await glinerModel.inference({
         texts: [text],
@@ -44,6 +44,9 @@ const extractNER = async (text: string, glinerModel: Gliner, initPromise: Promis
             text: res.spanText,
             score: res.score,
         }));
+
+    console.timeEnd("extractNER");
+    console.log("NER inference done.");
     return nerResults;
 };
 

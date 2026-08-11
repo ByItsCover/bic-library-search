@@ -114,9 +114,12 @@ const hardcoverMiddleware: Middleware = async ({ reqCtx, next }) => {
 };
 
 const s3Middleware: Middleware = async ({ reqCtx, next }) => {
+    console.time('s3Middleware');
     const config = {};
     const client = new S3Client(config);
     reqCtx.set('s3_client', client);
+    console.timeEnd("s3Middleware");
+    console.log("S3 client load done.");
     await next();
 };
 
