@@ -3,7 +3,7 @@ import { Gliner } from "gliner/node";
 import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { BatchHttpLink } from "@apollo/client/link/batch-http";
 import { parse } from "uuid";
-import { CoverResult } from "./types";
+import { CoverResult } from "../types";
 
 
 const loadTable = async (table_name: string, dbPromise: Promise<Connection>) => {

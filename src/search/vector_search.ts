@@ -1,5 +1,5 @@
 import * as lancedb from "@lancedb/lancedb"
-import { normalize } from "../utils";
+import { normalize } from "../utils/common";
 import { CoverResult } from "../types";
 import { constants } from "../constants";
 import logger from "../logger";
