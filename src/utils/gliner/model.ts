@@ -1,4 +1,4 @@
-import ort from "onnxruntime-node";
+import * as ort from "onnxruntime-node";
 import { Tokenizer } from "@huggingface/tokenizers";
 import { SpanProcessor, WhitespaceTokenSplitter } from "./processor";
 import { SpanDecoder } from "./decoder";
@@ -27,16 +27,17 @@ export class SpanModel {
         const num_spans: number = batch.spanIdxs[0].length;
 
         const createTensor = (data: any[], shape: number[], tensorType: any = "int64"): ort.Tensor => {
-            // @ts-ignore // NOTE: node types not working
             return new ort.Tensor(tensorType, data.flat(Infinity), shape);
         };
 
+        console.timeLog("glinerInference", "About to convert tensors");
         let input_ids: ort.Tensor = createTensor(batch.inputsIds, [batch_size, num_tokens]);
         let attention_mask: ort.Tensor = createTensor(batch.attentionMasks, [batch_size, num_tokens]); // NOTE: why convert to bool but type is not bool?
         let words_mask: ort.Tensor = createTensor(batch.wordsMasks, [batch_size, num_tokens]);
         let text_lengths: ort.Tensor = createTensor(batch.textLengths, [batch_size, 1]);
         let span_idx: ort.Tensor = createTensor(batch.spanIdxs, [batch_size, num_spans, 2]);
         let span_mask: ort.Tensor = createTensor(batch.spanMasks, [batch_size, num_spans], "bool");
+        console.timeLog("glinerInference", "Converted all tensors");
 
         const feeds: Record<string, ort.Tensor> = {
             input_ids: input_ids,
