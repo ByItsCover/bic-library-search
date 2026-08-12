@@ -86,6 +86,8 @@ export class SpanDecoder {
         threshold: number = 0.5,
         multiLabel: boolean = false,
     ): RawInferenceResult {
+        console.log("batchWordsStartIdx:", batchWordsStartIdx);
+        console.log("batchWordsEndIdx:", batchWordsEndIdx);
         const spans: RawInferenceResult = [];
 
         for (let batch = 0; batch < batchSize; batch++) {
@@ -93,11 +95,13 @@ export class SpanDecoder {
         }
 
         const batchPadding = inputLength * maxWidth * numEntities;
+        console.log("batchPadding:", batchPadding);
         const startTokenPadding = maxWidth * numEntities;
         const endTokenPadding = numEntities * 1;
 
         modelOutput.forEach((value, id) => {
             let batch = Math.floor(id / batchPadding);
+            console.log(`batch ind for model output with id '${id}':`, batch);
             let startToken = Math.floor(id / startTokenPadding) % inputLength;
             let endToken = startToken + (Math.floor(id / endTokenPadding) % maxWidth);
             let entity = id % numEntities;
