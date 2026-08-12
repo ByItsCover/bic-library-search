@@ -28,7 +28,13 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
 
     const clipSessionPromise = InferenceSession.create(
         clipPath,
-        { executionProviders: ['cpu'], graphOptimizationLevel: 'basic', interOpNumThreads: 1, intraOpNumThreads: 1}
+        {
+            executionProviders: ['cpu'],
+            graphOptimizationLevel: 'basic',
+            interOpNumThreads: 1,
+            intraOpNumThreads: 1,
+            enableCpuMemArena: false,
+        }
     );
     const glinerModelPromise = loadGliner(glinerPath, glinerTokenizerPromise);
 

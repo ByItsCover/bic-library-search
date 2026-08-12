@@ -39,7 +39,13 @@ const loadClipTokenizer = async (mainPath: string, configPath: string) => {
 const loadGliner = async (modelPath: string, tokenizerPromise: Promise<Tokenizer>) => {
     const session = await InferenceSession.create(
         modelPath,
-        { executionProviders: ['cpu'], graphOptimizationLevel: 'basic', interOpNumThreads: 1, intraOpNumThreads: 1}
+        {
+            executionProviders: ['cpu'],
+            graphOptimizationLevel: 'basic',
+            interOpNumThreads: 1,
+            intraOpNumThreads: 1,
+            enableCpuMemArena: false,
+        }
     );
     return new SpanModel(session, await tokenizerPromise)
 }
