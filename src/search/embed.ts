@@ -19,9 +19,7 @@ const uploadBooks = async (nerItems: CoverResult[], s3Client: S3Client) => {
         return;
     }
 
-    console.time('uploadBooks');
     logger.info(`"Number of embeddings to upload: ${nerItems.length}`);
-
     let successfulCount = 0;
 
     const s3Promises = nerItems.map(async(item) => {
@@ -39,31 +37,29 @@ const uploadBooks = async (nerItems: CoverResult[], s3Client: S3Client) => {
 
         try {
             const response = await s3Client.send(command);
-            console.log(response);
             successfulCount += 1;
         } catch (error) {
             if (
                 error instanceof S3ServiceException &&
                 error.name === "EntityTooLarge"
             ) {
-                console.error(
+                logger.error(
                     `Error from S3 while uploading object to ${process.env.BUCKET_NAME}. \
 The object was too large. To upload objects larger than 5GB, use the S3 console (160GB max) \
-or the multipart upload API (5TB max).`,
+or the multipart upload API (5TB max).`, error
                 );
             } else if (error instanceof S3ServiceException) {
-                console.error(
+                logger.error(
                     `Error from S3 while uploading object to ${process.env.BUCKET_NAME}.  ${error.name}: ${error.message}`,
+                    error
                 );
             } else {
-                console.error("Unfamiliar error:", error);
+                logger.error("Unfamiliar error:", error as Error);
             }
         }
     });
 
     await Promise.all(s3Promises);
-    console.timeEnd("uploadBooks");
-    console.log("Book s3 upload done.");
     logger.info(`Number of embedding uploaded: ${successfulCount}`);
 };
 

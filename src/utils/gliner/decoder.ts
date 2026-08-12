@@ -76,13 +76,11 @@ export class SpanDecoder {
         batchWordsStartIdx: number[][],
         batchWordsEndIdx: number[][],
         idToClass: Record<number, string>,
-        modelOutput: number[],
+        modelOutput: Float32Array<ArrayBufferLike>,
         flatNer: boolean = false,
         threshold: number = 0.5,
         multiLabel: boolean = false,
     ): RawInferenceResult {
-        console.log("batchWordsStartIdx:", batchWordsStartIdx);
-        console.log("batchWordsEndIdx:", batchWordsEndIdx);
         const spans: RawInferenceResult = [];
 
         for (let batch = 0; batch < batchSize; batch++) {
@@ -90,7 +88,6 @@ export class SpanDecoder {
         }
 
         const batchPadding = inputLength * maxWidth * numEntities;
-        console.log("batchPadding:", batchPadding);
         const startTokenPadding = maxWidth * numEntities;
         const endTokenPadding = numEntities * 1;
 

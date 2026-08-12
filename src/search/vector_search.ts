@@ -6,19 +6,16 @@ import logger from "../logger";
 
 
 const vectorSearch = async (embeddingPromise: Promise<number[]>, coversTablePromise: Promise<lancedb.Table>) => {
-    console.time('vectorSearch');
     const embedding = await embeddingPromise;
     const queryVector = normalize(embedding);
 
-    console.timeLog("vectorSearch", "Starting covers table load");
     let coversTable: lancedb.Table;
     try {
         coversTable = await coversTablePromise;
     } catch (error) {
-        console.error("covers Table open failed", error);
+        logger.error("covers Table open failed", error as Error);
         return [];
     }
-    console.timeLog("vectorSearch", "Covers table load complete");
 
     let tableRes: CoverResult[] = await coversTable.query()
         .nearestTo(queryVector)
@@ -30,8 +27,6 @@ const vectorSearch = async (embeddingPromise: Promise<number[]>, coversTableProm
     logger.info('Printing vector search results);');
     console.table(tableRes);
 
-    console.timeEnd("vectorSearch");
-    console.log("Vector search done.");
     return tableRes;
 }
 

@@ -3,7 +3,6 @@ import { S3Client } from "@aws-sdk/client-s3";
 import * as lancedb from "@lancedb/lancedb"
 import { ApolloClient } from "@apollo/client";
 import { InferenceSession } from "onnxruntime-node";
-import { Tokenizer } from "@huggingface/tokenizers";
 import { SpanModel } from "../utils/gliner/model";
 import { embedText, extractNER } from "./model_helper";
 import vectorSearch from "./vector_search";
