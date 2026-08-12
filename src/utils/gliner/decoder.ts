@@ -44,11 +44,6 @@ export class SpanDecoder {
             : (idx1: number[], idx2: number[]) => hasOverlappingNested(idx1, idx2, multiLabel);
 
         const newList: Spans = [];
-        var t = spans[0].length;
-        var b = spans[0]["length"];
-        var temp = spans[0][spans[0].length - 1];
-        var temp2 = spans[0][4];
-        var temp3 = spans[0].slice(1, 3);
         // Sort spans by their score (last element) in descending order
         const spanProb: Spans = spans.slice().sort((a, b) => (b[b.length - 1] as number) - (a[a.length - 1] as number));
 
@@ -101,7 +96,6 @@ export class SpanDecoder {
 
         modelOutput.forEach((value, id) => {
             let batch = Math.floor(id / batchPadding);
-            console.log(`batch ind for model output with id '${id}':`, batch);
             let startToken = Math.floor(id / startTokenPadding) % inputLength;
             let endToken = startToken + (Math.floor(id / endTokenPadding) % maxWidth);
             let entity = id % numEntities;
