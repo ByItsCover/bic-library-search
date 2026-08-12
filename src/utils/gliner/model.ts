@@ -75,10 +75,15 @@ export class SpanModel {
         threshold: number = 0.5,
         multiLabel: boolean = false,
     ): Promise<InferenceResultMultiple> {
+        console.time('glinerInference');
         let batch = this.processor.prepareBatch(texts, entities);
+        console.timeLog("glinerInference", "Batch:", batch);
         let feeds: Record<string, ort.Tensor> = this.prepareInputs(batch);
-        const results: Record<string, ort.Tensor> = await this.onnxSession.run(feeds);
+        console.timeLog("glinerInference", "Feeds:", feeds);
+        const results = await this.onnxSession.run(feeds);
+        console.timeLog("glinerInference", "Session results:", results);
         const modelOutput: any = results["logits"].data;
+        console.timeLog("glinerInference", "Model Output:", modelOutput);
         // const modelOutput = results.logits.data as number[];
 
         const batchSize: number = batch.batchTokens.length;
@@ -86,6 +91,7 @@ export class SpanModel {
         const maxWidth: number = this.maxWidth;
         const numEntities: number = entities.length;
         const batchIds: number[] = Array.from({ length: batchSize }, (_, i) => i);
+        console.timeLog("glinerInference", "Random stuff done loading");
         const decodedSpans: RawInferenceResult = this.decoder.decode(
             batchSize,
             inputLength,
@@ -101,6 +107,7 @@ export class SpanModel {
             threshold,
             multiLabel,
         );
+        console.timeLog("glinerInference", "Decoded spans:", decodedSpans);
 
         return this.mapRawResultToResponse(decodedSpans);
     }
