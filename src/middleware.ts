@@ -5,15 +5,13 @@ import { S3Client } from "@aws-sdk/client-s3";
 import { InferenceSession } from "onnxruntime-node";
 import * as lancedb from "@lancedb/lancedb";
 import * as path from 'path';
+import logger from "./logger";
 import { loadTable, loadTokenizer, loadClipTokenizer, loadGliner, loadApolloClient, toHex, toBytes } from "./utils/common";
 import { UserAttributes, TablePair } from "./types";
 import { constants } from "./constants";
 
 
 const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
-    console.time('modelMiddleware');
-    console.log("Starting model loads");
-
     const clipDir = path.join(process.env.ROOT_DIR ?? ".", "clip_model");
     const clipPath = path.join(clipDir, "clip_text.onnx");
     const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model");
@@ -70,7 +68,6 @@ const customAuthMiddleware: Middleware = async ({ reqCtx, next }) => {
         if (token !== null) {
             try {
                 const payload = await verifier.verify(token);
-                console.log(payload);
                 userAttributes = {
                     username: payload["preferred_username"]!.toLocaleString(),
                     email: payload["email"]!.toLocaleString(),
@@ -78,11 +75,11 @@ const customAuthMiddleware: Middleware = async ({ reqCtx, next }) => {
                     uid_bytes: toBytes(payload["custom:uid"]!.toLocaleString()),
                 }
             } catch (error) {
-                console.error("Token is not valid", error);
+                logger.error("Token is not valid", error as Error);
             }
         }
     } catch (error) {
-        console.error("customAuthMiddleware failure", error);
+        logger.error("customAuthMiddleware failure", error as Error);
     }
 
     reqCtx.set("user_attributes", userAttributes);
@@ -97,12 +94,9 @@ const hardcoverMiddleware: Middleware = async ({ reqCtx, next }) => {
 };
 
 const s3Middleware: Middleware = async ({ reqCtx, next }) => {
-    console.time('s3Middleware');
     const config = {};
     const client = new S3Client(config);
     reqCtx.set('s3_client', client);
-    console.timeEnd("s3Middleware");
-    console.log("S3 client load done.");
     await next();
 };
 

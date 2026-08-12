@@ -29,15 +29,12 @@ export class SpanModel {
         const createTensor = (data: any[], shape: number[], tensorType: any = "int64"): ort.Tensor => {
             return new ort.Tensor(tensorType, data.flat(Infinity), shape);
         };
-
-        console.timeLog("glinerInference", "About to convert tensors");
         let input_ids: ort.Tensor = createTensor(batch.inputsIds, [batch_size, num_tokens]);
         let attention_mask: ort.Tensor = createTensor(batch.attentionMasks, [batch_size, num_tokens]); // NOTE: why convert to bool but type is not bool?
         let words_mask: ort.Tensor = createTensor(batch.wordsMasks, [batch_size, num_tokens]);
         let text_lengths: ort.Tensor = createTensor(batch.textLengths, [batch_size, 1]);
         let span_idx: ort.Tensor = createTensor(batch.spanIdxs, [batch_size, num_spans, 2]);
         let span_mask: ort.Tensor = createTensor(batch.spanMasks, [batch_size, num_spans], "bool");
-        console.timeLog("glinerInference", "Converted all tensors");
 
         const feeds: Record<string, ort.Tensor> = {
             input_ids: input_ids,
@@ -76,23 +73,16 @@ export class SpanModel {
         threshold: number = 0.5,
         multiLabel: boolean = false,
     ): Promise<InferenceResultMultiple> {
-        console.time('glinerInference');
         let batch = this.processor.prepareBatch(texts, entities);
-        console.timeLog("glinerInference", "Batch:", batch);
         let feeds: Record<string, ort.Tensor> = this.prepareInputs(batch);
-        console.timeLog("glinerInference", "Feeds:", feeds);
         const results = await this.onnxSession.run(feeds);
-        console.timeLog("glinerInference", "Session results:", results);
-        const modelOutput: any = results["logits"].data;
-        console.timeLog("glinerInference", "Model Output:", modelOutput);
-        // const modelOutput = results.logits.data as number[];
+        const modelOutput = results["logits"].data as Float32Array<ArrayBufferLike>;
 
         const batchSize: number = batch.batchTokens.length;
         const inputLength: number = Math.max(...batch.textLengths);
         const maxWidth: number = this.maxWidth;
         const numEntities: number = entities.length;
         const batchIds: number[] = Array.from({ length: batchSize }, (_, i) => i);
-        console.timeLog("glinerInference", "Random stuff done loading");
         const decodedSpans: RawInferenceResult = this.decoder.decode(
             batchSize,
             inputLength,
@@ -108,7 +98,6 @@ export class SpanModel {
             threshold,
             multiLabel,
         );
-        console.timeLog("glinerInference", "Decoded spans:", decodedSpans);
 
         return this.mapRawResultToResponse(decodedSpans);
     }
