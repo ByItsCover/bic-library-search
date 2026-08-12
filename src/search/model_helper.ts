@@ -12,7 +12,9 @@ const embedText = async (text: string, clipSessionPromise: Promise<InferenceSess
     console.timeLog("embedText", "Tokenizer load complete");
 
     const tokenIds = tokenizer.encode(text);
+    console.log("tokenIds:", tokenIds);
     const tokensTensor = new Tensor(constants.tokens_type, tokenIds, [1, tokenIds.length]);
+    console.log("tokensTensor:", tokensTensor);
 
     console.timeLog("embedText", "Starting clip session load");
     const clipSession = await clipSessionPromise;
