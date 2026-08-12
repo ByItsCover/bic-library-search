@@ -32,6 +32,7 @@ resource "aws_lambda_function" "search_function" {
       COGNITO_USER_POOL_ID  = local.cognito_user_pool_id,
       COGNITO_CLIENT_ID     = local.cognito_user_pool_client_id
       BUCKET_NAME           = local.cover_dump_name
+      NODE_OPTIONS          = "--expose-gc"
     }
   }
 }

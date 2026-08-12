@@ -100,4 +100,17 @@ const s3Middleware: Middleware = async ({ reqCtx, next }) => {
     await next();
 };
 
-export { modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, s3Middleware };
+const collectGarbage: Middleware = async ({ reqCtx, next }) => {
+    await next();
+
+    try {
+        if (global.gc) {
+            global.gc();
+            logger.info("Manual gc completed");
+        }
+    } catch (error) {
+        logger.error("Manual garbage collection failed", error as Error);
+    }
+}
+
+export { modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, s3Middleware, collectGarbage };

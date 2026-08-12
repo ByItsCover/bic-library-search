@@ -52,6 +52,7 @@ const search = async (reqCtx : RequestContext) => {
     }
 
     await newUploadTask;
+    const nerPairs = await nerResPromise;
 
     return {
         statusCode: responseCode,
@@ -61,6 +62,7 @@ const search = async (reqCtx : RequestContext) => {
                 cover_id: Number(res.cover_id),
                 book_id: Number(res.book_id),
             })),
+            nerParsed: nerPairs,
         }),
     };
 }
