@@ -1,3 +1,9 @@
+/*
+ * Portions of this code are used under the Apache License, Version 2.0.
+ * Copyright (c) 2024 Knowledgator
+ * Original source: https://github.com/Knowledgator/GLiNER.js/blob/main/src/lib/model.ts
+*/
+
 import * as ort from "onnxruntime-node";
 import { Tokenizer } from "@huggingface/tokenizers";
 import { SpanProcessor, WhitespaceTokenSplitter } from "./processor";

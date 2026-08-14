@@ -1,3 +1,9 @@
+/*
+ * Portions of this code are used under the Apache License, Version 2.0.
+ * Copyright (c) 2024 Knowledgator
+ * Original source: https://github.com/Knowledgator/GLiNER.js/blob/main/src/lib/decoder.ts
+*/
+
 import { RawInferenceResult, Spans } from "../../types";
 
 
