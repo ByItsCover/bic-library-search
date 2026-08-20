@@ -1,11 +1,26 @@
-import { ApolloClient, gql, TypedDocumentNode } from "@apollo/client";
-import logger from "../logger";
-import { constants } from "../constants";
+import { ApolloClient, gql, InMemoryCache, TypedDocumentNode } from "@apollo/client";
+import { BatchHttpLink } from "@apollo/client/link/batch-http";
 import {
-    CoverResult, BookIdRetrieval,
-    BookIdRetrievalVariables, NerResult, TitleAuthorSearch, TitleAuthorSearchVariables
+    CoverResult, BookIdRetrieval, BookIdRetrievalVariables,
+    NerResult, TitleAuthorSearch, TitleAuthorSearchVariables
 } from "../types";
+import { constants } from "../constants";
+import logger from "../logger";
 
+
+const loadApolloClient = async (uri: string, secretPromise: Promise<string | Uint8Array<ArrayBufferLike> | undefined>) => {
+    const secretValue = await secretPromise;
+    const batchLink = new BatchHttpLink({
+        uri: uri,
+        headers: {
+            authorization: `Bearer ${secretValue}`,
+        },
+    });
+    return new ApolloClient({
+        link: batchLink,
+        cache: new InMemoryCache(),
+    });
+}
 
 const keywordSearch = async (nerPairsPromise: Promise<NerResult[]>, hardcoverClientPromise: Promise<ApolloClient>) => {
     const nerPairs = await nerPairsPromise;
@@ -94,4 +109,4 @@ const keywordSearch = async (nerPairsPromise: Promise<NerResult[]>, hardcoverCli
     return [...idCoverMap.values().filter(res => res !== null)];
 }
 
-export default keywordSearch;
+export { loadApolloClient, keywordSearch };

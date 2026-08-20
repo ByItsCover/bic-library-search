@@ -5,10 +5,15 @@ import { S3Client } from "@aws-sdk/client-s3";
 import { InferenceSession } from "onnxruntime-node";
 import * as lancedb from "@lancedb/lancedb";
 import * as path from 'path';
-import logger from "./logger";
-import { loadTable, loadTokenizer, loadClipTokenizer, loadGliner, loadApolloClient, toHex, toBytes } from "./utils/common";
+import { loadGliner } from "./utils/gliner/model";
+import { loadClipTokenizer } from "./utils/clip/tokenizer";
+import { loadTokenizer } from "./utils/models";
+import { loadTable } from "./utils/lancedb";
+import { loadApolloClient } from "./utils/hardcover";
+import { toBytes, toHex } from "./utils/auth";
 import { UserAttributes, TablePair } from "./types";
 import { constants } from "./constants";
+import logger from "./logger";
 
 
 const modelMiddleware: Middleware = async ({ reqCtx, next }) => {

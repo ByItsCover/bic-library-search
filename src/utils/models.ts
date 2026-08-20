@@ -1,9 +1,23 @@
 import { InferenceSession, Tensor } from "onnxruntime-node";
-import { SpanModel } from "../utils/gliner/model";
-import { ClipTokenizer } from "../utils/clip/tokenizer";
-import { NerResult } from "../types";
-import { NER_QUERY_LABELS, NER_SEARCH_LABELS, constants } from "../constants";
+import { Tokenizer } from "@huggingface/tokenizers";
+import { readFile } from "fs/promises";
+import { SpanModel } from "./gliner/model";
+import { ClipTokenizer } from "./clip/tokenizer";
+import { NerResult} from "../types";
+import { constants, NER_QUERY_LABELS, NER_SEARCH_LABELS } from "../constants";
 
+
+const loadTokenizer = async (mainPath: string, configPath: string): Promise<[Tokenizer, any]> => {
+    const mainPromise = readFile(mainPath, 'utf-8');
+    const configPromise = readFile(configPath, 'utf-8');
+
+    const tokenizerJson = JSON.parse(await mainPromise);
+    const tokenizerConfigJson = JSON.parse(await configPromise);
+    return [
+        new Tokenizer(tokenizerJson, tokenizerConfigJson),
+        tokenizerConfigJson
+    ];
+}
 
 const embedText = async (
     text: string, clipSessionPromise: Promise<InferenceSession>, tokenizerPromise: Promise<ClipTokenizer>
@@ -34,4 +48,4 @@ const extractNER = async (text: string, glinerModelTask: Promise<SpanModel>) => 
     return nerResults;
 };
 
-export { embedText, extractNER };
+export { loadTokenizer, embedText, extractNER };

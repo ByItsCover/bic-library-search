@@ -11,7 +11,22 @@ import { SpanDecoder } from "./decoder";
 import { IEntityResult, InferenceResultMultiple, ProcessBatch, RawInferenceResult } from "../../types";
 
 
-export class SpanModel {
+const loadGliner = async (modelPath: string, tokenizerPromise: Promise<[Tokenizer, any]>) => {
+    const session = await ort.InferenceSession.create(
+        modelPath,
+        {
+            executionProviders: ['cpu'],
+            graphOptimizationLevel: 'basic',
+            interOpNumThreads: 1,
+            intraOpNumThreads: 1,
+            enableCpuMemArena: false,
+        }
+    );
+    const [tokenizer, _] = await tokenizerPromise;
+    return new SpanModel(session, tokenizer)
+}
+
+class SpanModel {
     processor: SpanProcessor;
     decoder: SpanDecoder;
 
@@ -108,3 +123,5 @@ export class SpanModel {
         return this.mapRawResultToResponse(decodedSpans);
     }
 }
+
+export { loadGliner, SpanModel };

@@ -1,7 +1,40 @@
 import * as lancedb from "@lancedb/lancedb";
+import { Connection } from "@lancedb/lancedb";
+import { normalize } from "./search";
+import { CoverResult, Feedback, FeedbackResult, UserAttributes } from "../types";
+import { constants } from "../constants";
 import logger from "../logger";
-import { UserAttributes, CoverResult, FeedbackResult, Feedback } from "../types";
 
+
+const loadTable = async (table_name: string, dbPromise: Promise<Connection>) => {
+    const db = await dbPromise;
+    return await db.openTable(table_name);
+}
+
+const vectorSearch = async (embeddingPromise: Promise<number[]>, coversTablePromise: Promise<lancedb.Table>) => {
+    const embedding = await embeddingPromise;
+    const queryVector = normalize(embedding);
+
+    let coversTable: lancedb.Table;
+    try {
+        coversTable = await coversTablePromise;
+    } catch (error) {
+        logger.error("covers Table open failed", error as Error);
+        return [];
+    }
+
+    let tableRes: CoverResult[] = await coversTable.query()
+        .nearestTo(queryVector)
+        .distanceType(constants.distance_type)
+        .select(["cover_id", "book_id", "isbn_13", "cover_url", "_distance"])
+        .limit(constants.vector_query_limit)
+        .toArray();
+
+    logger.info('Printing vector search results);');
+    console.table(tableRes);
+
+    return tableRes;
+}
 
 const userRatings = async (
     results: CoverResult[], userAttributes: UserAttributes, feedbackTablePromise: Promise<lancedb.Table>
@@ -40,4 +73,4 @@ const userRatings = async (
     return updated_results;
 };
 
-export { userRatings };
+export { loadTable, vectorSearch, userRatings };
