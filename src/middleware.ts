@@ -64,7 +64,7 @@ const customAuthMiddleware: Middleware = async ({ reqCtx, next }) => {
     try {
         const verifier = CognitoJwtVerifier.create({
             userPoolId: process.env.COGNITO_USER_POOL_ID,
-            tokenUse: "id",
+            tokenUse: "access",
             clientId: process.env.COGNITO_CLIENT_ID,
         });
 
@@ -75,10 +75,8 @@ const customAuthMiddleware: Middleware = async ({ reqCtx, next }) => {
             try {
                 const payload = await verifier.verify(token);
                 userAttributes = {
-                    username: payload["preferred_username"]!.toLocaleString(),
-                    email: payload["email"]!.toLocaleString(),
-                    uid_hex: toHex(payload["custom:uid"]!.toLocaleString()),
-                    uid_bytes: toBytes(payload["custom:uid"]!.toLocaleString()),
+                    uid_hex: toHex(payload["username"].toLocaleString()),
+                    uid_bytes: toBytes(payload["username"].toLocaleString()),
                 }
             } catch (error) {
                 logger.error("Token is not valid", error as Error);
@@ -106,7 +104,7 @@ const s3Middleware: Middleware = async ({ reqCtx, next }) => {
     await next();
 };
 
-const collectGarbage: Middleware = async ({ reqCtx, next }) => {
+const collectGarbage: Middleware = async ({ next }) => {
     await next();
 
     try {
