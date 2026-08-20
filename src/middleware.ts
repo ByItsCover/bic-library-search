@@ -75,8 +75,8 @@ const customAuthMiddleware: Middleware = async ({ reqCtx, next }) => {
             try {
                 const payload = await verifier.verify(token);
                 userAttributes = {
-                    uid_hex: toHex(payload["username"]!.toLocaleString()),
-                    uid_bytes: toBytes(payload["username"]!.toLocaleString()),
+                    uid_hex: toHex(payload["username"].toLocaleString()),
+                    uid_bytes: toBytes(payload["username"].toLocaleString()),
                 }
             } catch (error) {
                 logger.error("Token is not valid", error as Error);
