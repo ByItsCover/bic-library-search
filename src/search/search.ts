@@ -4,16 +4,15 @@ import * as lancedb from "@lancedb/lancedb"
 import { ApolloClient } from "@apollo/client";
 import { InferenceSession } from "onnxruntime-node";
 import { SpanModel } from "../utils/gliner/model";
-import { embedText, extractNER } from "./model_helper";
-import vectorSearch from "./vector_search";
-import keywordSearch from "./keyword_search";
-import { userRatings } from "./user_query";
-import uploadBooks from "./embed";
-import { mergeResults } from "../utils/common";
+import { ClipTokenizer } from "../utils/clip/tokenizer";
+import { embedText, extractNER } from "../utils/models";
+import { vectorSearch, userRatings } from "../utils/lancedb";
+import { keywordSearch } from "../utils/hardcover";
+import { uploadBooks } from "../utils/s3";
+import { mergeResults } from "../utils/search";
 import { CoverResult, UserAttributes } from "../types";
 import { constants } from "../constants";
 import logger from "../logger";
-import {ClipTokenizer} from "../utils/clip/tokenizer";
 
 
 const search = async (reqCtx : RequestContext) => {
@@ -43,7 +42,9 @@ const search = async (reqCtx : RequestContext) => {
     if (vectorResult.length == 0) {
         responseCode = 204;
     }
-    const [currentSearchResults, newNerItems] = mergeResults(vectorResult, keywordResult, 0.51, 0.49, 60, constants.results_limit);
+    const [currentSearchResults, newNerItems] = mergeResults(
+        vectorResult, keywordResult, 0.51, 0.49, 60, constants.results_limit
+    );
     searchResults = currentSearchResults;
 
     const newUploadTask = uploadBooks(newNerItems, s3Client);

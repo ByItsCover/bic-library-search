@@ -3,7 +3,7 @@ import {
     S3Client,
     S3ServiceException,
 } from "@aws-sdk/client-s3";
-import {CoverResult} from "../types";
+import { CoverResult } from "../types";
 import logger from "../logger";
 
 
@@ -63,4 +63,4 @@ or the multipart upload API (5TB max).`, error
     logger.info(`Number of embedding uploaded: ${successfulCount}`);
 };
 
-export default uploadBooks;
+export { uploadBooks };

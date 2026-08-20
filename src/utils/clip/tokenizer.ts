@@ -1,7 +1,17 @@
 import { Tokenizer } from "@huggingface/tokenizers";
+import { loadTokenizer } from "../models";
 
 
-export class ClipTokenizer {
+const loadClipTokenizer = async (mainPath: string, configPath: string) => {
+    const [tokenizer, tokenizerConfig] = await loadTokenizer(mainPath, configPath);
+
+    return new ClipTokenizer(
+        tokenizer,
+        tokenizerConfig["model_max_length"]
+    );
+}
+
+class ClipTokenizer {
     tokenizer: Tokenizer;
     paddingId: number;
     paddingLength: number;
@@ -27,3 +37,5 @@ export class ClipTokenizer {
         return this.padding(tokens.ids, this.paddingId, paddingLength, truncate);
     }
 }
+
+export { loadClipTokenizer, ClipTokenizer };
