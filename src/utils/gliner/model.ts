@@ -10,26 +10,30 @@ import { SpanProcessor, WhitespaceTokenSplitter } from "./processor";
 import { SpanDecoder } from "./decoder";
 import { IEntityResult, InferenceResultMultiple, ProcessBatch, RawInferenceResult } from "../../types";
 import logger from "../../logger";
+import fs from "fs";
 
 
 const loadGliner = async (modelPath: string, tokenizerPromise: Promise<[Tokenizer, any]>) => {
     try {
         logger.info("Creating gliner session");
-        const session = await ort.InferenceSession.create(
-            modelPath,
-            {
-                executionProviders: ['cpu'],
-                graphOptimizationLevel: 'basic',
-                interOpNumThreads: 1,
-                intraOpNumThreads: 1,
-                enableCpuMemArena: false,
-            }
-        );
+        // const session = await ort.InferenceSession.create(
+        //     modelPath,
+        //     {
+        //         executionProviders: ['cpu'],
+        //         //graphOptimizationLevel: 'basic',
+        //         interOpNumThreads: 1,
+        //         intraOpNumThreads: 1,
+        //         enableCpuMemArena: false,
+        //     }
+        // );
+        const exists = fs.existsSync(modelPath);
+        logger.info(`Gliner path exist status: ${exists}`);
+        logger.info("Loaded session");
         const [tokenizer, _] = await tokenizerPromise;
         logger.info("Initializing gliner span model");
-        const model = new SpanModel(session, tokenizer);
+        //const model = new SpanModel(session, tokenizer);
         logger.info("Gliner load complete");
-        return model;
+        return null;
     } catch (error) {
         logger.error("Load Gliner failed", error as Error);
         throw error;
