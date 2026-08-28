@@ -9,9 +9,11 @@ import { Tokenizer } from "@huggingface/tokenizers";
 import { SpanProcessor, WhitespaceTokenSplitter } from "./processor";
 import { SpanDecoder } from "./decoder";
 import { IEntityResult, InferenceResultMultiple, ProcessBatch, RawInferenceResult } from "../../types";
+import logger from "../../logger";
 
 
 const loadGliner = async (modelPath: string, tokenizerPromise: Promise<[Tokenizer, any]>) => {
+    logger.info("Creating gliner session");
     const session = await ort.InferenceSession.create(
         modelPath,
         {
@@ -23,7 +25,10 @@ const loadGliner = async (modelPath: string, tokenizerPromise: Promise<[Tokenize
         }
     );
     const [tokenizer, _] = await tokenizerPromise;
-    return new SpanModel(session, tokenizer)
+    logger.info("Initializing gliner span model");
+    const model = new SpanModel(session, tokenizer);
+    logger.info("Gliner load complete");
+    return model;
 }
 
 class SpanModel {

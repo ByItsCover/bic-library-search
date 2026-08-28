@@ -17,36 +17,42 @@ import logger from "./logger";
 
 
 const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
-    const clipDir = path.join(process.env.ROOT_DIR ?? ".", "clip_model");
-    const clipPath = path.join(clipDir, "clip_text.onnx");
-    const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model");
-    const glinerPath = path.join(glinerDir, "gliner_quantized.onnx");
+    try {
+        const clipDir = path.join(process.env.ROOT_DIR ?? ".", "clip_model");
+        const clipPath = path.join(clipDir, "clip_text.onnx");
+        const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model");
+        const glinerPath = path.join(glinerDir, "gliner_quantized.onnx");
 
-    const clipTokenizerPromise = loadClipTokenizer(
-        path.join(clipDir, "tokenizer.json"),
-        path.join(clipDir, "tokenizer_config.json")
-    );
-    const glinerTokenizerPromise = loadTokenizer(
-        path.join(glinerDir, "tokenizer.json"),
-        path.join(glinerDir, "tokenizer_config.json")
-    );
+        const clipTokenizerPromise = loadClipTokenizer(
+            path.join(clipDir, "tokenizer.json"),
+            path.join(clipDir, "tokenizer_config.json")
+        );
+        const glinerTokenizerPromise = loadTokenizer(
+            path.join(glinerDir, "tokenizer.json"),
+            path.join(glinerDir, "tokenizer_config.json")
+        );
 
-    const clipSessionPromise = InferenceSession.create(
-        clipPath,
-        {
-            executionProviders: ['cpu'],
-            graphOptimizationLevel: 'basic',
-            interOpNumThreads: 1,
-            intraOpNumThreads: 1,
-            enableCpuMemArena: false,
-        }
-    );
-    const glinerModelPromise = loadGliner(glinerPath, glinerTokenizerPromise);
+        const clipSessionPromise = InferenceSession.create(
+            clipPath,
+            {
+                executionProviders: ['cpu'],
+                graphOptimizationLevel: 'basic',
+                interOpNumThreads: 1,
+                intraOpNumThreads: 1,
+                enableCpuMemArena: false,
+            }
+        );
+        const glinerModelPromise = loadGliner(glinerPath, glinerTokenizerPromise);
 
-    reqCtx.set("clip_session_promise", clipSessionPromise);
-    reqCtx.set("clip_tokenizer_promise", clipTokenizerPromise);
-    reqCtx.set("gliner_model_promise", glinerModelPromise);
-    await next();
+        reqCtx.set("clip_session_promise", clipSessionPromise);
+        reqCtx.set("clip_tokenizer_promise", clipTokenizerPromise);
+        reqCtx.set("gliner_model_promise", glinerModelPromise);
+        await next();
+    } catch (error) {
+        logger.error("Model middleware failed", error as Error);
+        throw error;
+    }
+
 };
 
 const lanceMiddleware: Middleware = async ({ reqCtx, next }) => {
