@@ -256,6 +256,10 @@ def quantized_download(
         os.remove(clip_script_state["pretrained_name"])
         os.remove(gliner_script_state["pretrained_name"])
 
+    #"""
+    os.remove(gliner_script_state["onnx_model_path"])
+    #"""
+
     if os.path.isfile(clip_script_state["onnx_model_path"] + '.data'):
         os.remove(clip_script_state["onnx_model_path"] + '.data')
 
