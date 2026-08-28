@@ -26,11 +26,11 @@ const loadGliner = async (modelPath: string, tokenizerPromise: Promise<[Tokenize
             }
         );
         logger.info("Loaded session");
-        //const [tokenizer, _] = await tokenizerPromise;
+        const [tokenizer, _] = await tokenizerPromise;
         logger.info("Initializing gliner span model");
-        //const model = new SpanModel(session, tokenizer);
+        const model = new SpanModel(session, tokenizer);
         logger.info("Gliner load complete");
-        return null;
+        return model;
     } catch (error) {
         logger.error("Load Gliner failed", error as Error);
         throw error;

@@ -242,9 +242,9 @@ def quantized_download(
                     )
 
 
-    print("Quantizing model...")
+    #print("Quantizing model...")
 
-    #""" Skipping Quantization of GLiNER
+    """ Skipping Quantization of GLiNER
     gliner_onnx_model = onnx.load(gliner_script_state["onnx_model_path"])
     gliner_onnx_model = onnx.shape_inference.infer_shapes(gliner_onnx_model)
     onnx.save(gliner_onnx_model, gliner_script_state["onnx_model_shapes_path"])
@@ -294,7 +294,7 @@ def quantized_download(
         os.remove(clip_script_state["pretrained_name"])
         os.remove(gliner_script_state["pretrained_name"])
 
-    #"""
+    """
     os.remove(gliner_script_state["onnx_model_path"])
     os.remove(gliner_script_state["onnx_model_shapes_path"])
     os.remove(gliner_script_state["quant_pre_model_path"])
@@ -309,8 +309,8 @@ def quantized_download(
 
     #print(f"Model {clip_script_state["pretrained_name"]} quantized to {clip_destination}/")
     print(f"Model {clip_script_state["pretrained_name"]} onnx exported to {clip_destination}/")
-    print(f"Model {gliner_script_state["pretrained_name"]} quantized to {gliner_destination}/")
-    #print(f"Model {gliner_script_state["pretrained_name"]} onnx exported to {gliner_destination}/")
+    #print(f"Model {gliner_script_state["pretrained_name"]} quantized to {gliner_destination}/")
+    print(f"Model {gliner_script_state["pretrained_name"]} onnx exported to {gliner_destination}/")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
