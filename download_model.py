@@ -11,7 +11,8 @@ import open_clip
 from gliner import GLiNER
 
 import onnx
-from onnxruntime.transformers.float16 import convert_float_to_float16
+from onnxruntime.quantization import quantize_dynamic, QuantType
+from onnxruntime.quantization.shape_inference import quant_pre_process
 
 
 def hf_download(destination: str, repo_id: str, filenames: list[str]):
@@ -246,8 +247,45 @@ def quantized_download(
     #""" Skipping Quantization of GLiNER
     gliner_onnx_model = onnx.load(gliner_script_state["onnx_model_path"])
     gliner_onnx_model = onnx.shape_inference.infer_shapes(gliner_onnx_model)
-    gliner_onnx_quantized = convert_float_to_float16(gliner_onnx_model, disable_shape_infer=True)
-    onnx.save(gliner_onnx_quantized, gliner_script_state["quant_model_path"])
+    onnx.save(gliner_onnx_model, gliner_script_state["onnx_model_shapes_path"])
+
+    quant_pre_process(gliner_script_state["onnx_model_shapes_path"],
+                      gliner_script_state["quant_pre_model_path"],
+                      skip_optimization=False,
+                      skip_symbolic_shape=True,
+                      verbose=3)
+
+    gliner_onnx_model = onnx.load(gliner_script_state["quant_pre_model_path"])
+
+    nodes_to_exclude = set()
+    for node in gliner_onnx_model.graph.node:
+        # Add the node name
+        nodes_to_exclude.add(node.name)
+
+    # Create base attention layer paths
+    attention_paths = [
+        "/output/dense",
+        "/intermediate/dense"
+    ]
+
+    # Generate the full paths for all encoder layers
+    attention_layer_paths = [
+        f"/token_rep_layer/bert_layer/model/encoder/layer.{layer_num}{path}"
+        for layer_num in range(12)  # 12 encoder layers (0-11)
+        for path in attention_paths
+    ]
+
+    # Update nodes_to_exclude
+    nodes_to_exclude_v2 = [
+        node for node in nodes_to_exclude
+        if any(node.startswith(prefix) for prefix in attention_layer_paths)
+    ]
+
+    quantize_dynamic(gliner_script_state["quant_pre_model_path"],
+                     gliner_script_state["quant_model_path"],
+                     nodes_to_exclude=nodes_to_exclude_v2,
+                     per_channel=True,
+                     weight_type=QuantType.QInt8)
     #"""
 
 
@@ -256,8 +294,10 @@ def quantized_download(
         os.remove(clip_script_state["pretrained_name"])
         os.remove(gliner_script_state["pretrained_name"])
 
-    """
+    #"""
     os.remove(gliner_script_state["onnx_model_path"])
+    os.remove(gliner_script_state["onnx_model_shapes_path"])
+    os.remove(gliner_script_state["quant_pre_model_path"])
     #"""
 
     if os.path.isfile(clip_script_state["onnx_model_path"] + '.data'):

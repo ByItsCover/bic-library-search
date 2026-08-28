@@ -13,22 +13,27 @@ import logger from "../../logger";
 
 
 const loadGliner = async (modelPath: string, tokenizerPromise: Promise<[Tokenizer, any]>) => {
-    logger.info("Creating gliner session");
-    const session = await ort.InferenceSession.create(
-        modelPath,
-        {
-            executionProviders: ['cpu'],
-            graphOptimizationLevel: 'basic',
-            interOpNumThreads: 1,
-            intraOpNumThreads: 1,
-            enableCpuMemArena: false,
-        }
-    );
-    const [tokenizer, _] = await tokenizerPromise;
-    logger.info("Initializing gliner span model");
-    const model = new SpanModel(session, tokenizer);
-    logger.info("Gliner load complete");
-    return model;
+    try {
+        logger.info("Creating gliner session");
+        const session = await ort.InferenceSession.create(
+            modelPath,
+            {
+                executionProviders: ['cpu'],
+                graphOptimizationLevel: 'basic',
+                interOpNumThreads: 1,
+                intraOpNumThreads: 1,
+                enableCpuMemArena: false,
+            }
+        );
+        const [tokenizer, _] = await tokenizerPromise;
+        logger.info("Initializing gliner span model");
+        const model = new SpanModel(session, tokenizer);
+        logger.info("Gliner load complete");
+        return model;
+    } catch (error) {
+        logger.error("Load Gliner failed", error as Error);
+        throw error;
+    }
 }
 
 class SpanModel {
