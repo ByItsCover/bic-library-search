@@ -11,8 +11,7 @@ import open_clip
 from gliner import GLiNER
 
 import onnx
-from onnxruntime.quantization import quantize_dynamic, QuantType
-from onnxruntime.quantization.shape_inference import quant_pre_process
+from onnxruntime.transformers.float16 import convert_float_to_float16
 
 
 def hf_download(destination: str, repo_id: str, filenames: list[str]):
@@ -241,6 +240,17 @@ def quantized_download(
                     external_data=False
                     )
 
+
+    print("Quantizing model...")
+
+    #""" Skipping Quantization of GLiNER
+    gliner_onnx_model = onnx.load(gliner_script_state["onnx_model_path"])
+    gliner_onnx_model = onnx.shape_inference.infer_shapes(gliner_onnx_model)
+    gliner_onnx_quantized = convert_float_to_float16(gliner_onnx_model, disable_shape_infer=True)
+    onnx.save(gliner_onnx_quantized, gliner_script_state["quant_model_path"])
+    #"""
+
+
     if clean_cache:
         print("Cleaning up...")
         os.remove(clip_script_state["pretrained_name"])
@@ -255,8 +265,8 @@ def quantized_download(
 
     #print(f"Model {clip_script_state["pretrained_name"]} quantized to {clip_destination}/")
     print(f"Model {clip_script_state["pretrained_name"]} onnx exported to {clip_destination}/")
-    #print(f"Model {gliner_script_state["pretrained_name"]} quantized to {gliner_destination}/")
-    print(f"Model {gliner_script_state["pretrained_name"]} onnx exported to {gliner_destination}/")
+    print(f"Model {gliner_script_state["pretrained_name"]} quantized to {gliner_destination}/")
+    #print(f"Model {gliner_script_state["pretrained_name"]} onnx exported to {gliner_destination}/")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
