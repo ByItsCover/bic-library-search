@@ -256,7 +256,7 @@ def quantized_download(
         os.remove(clip_script_state["pretrained_name"])
         os.remove(gliner_script_state["pretrained_name"])
 
-    #"""
+    """
     os.remove(gliner_script_state["onnx_model_path"])
     #"""
 
