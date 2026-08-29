@@ -31,19 +31,19 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
         path.join(glinerDir, "tokenizer_config.json")
     );
 
-    // const clipSessionPromise = InferenceSession.create(
-    //     clipPath,
-    //     {
-    //         executionProviders: ['cpu'],
-    //         graphOptimizationLevel: 'basic',
-    //         interOpNumThreads: 1,
-    //         intraOpNumThreads: 1,
-    //         enableCpuMemArena: false,
-    //     }
-    // );
+    const clipSessionPromise = InferenceSession.create(
+        clipPath,
+        {
+            executionProviders: ['cpu'],
+            graphOptimizationLevel: 'basic',
+            interOpNumThreads: 1,
+            intraOpNumThreads: 1,
+            enableCpuMemArena: false,
+        }
+    );
     //const glinerModelPromise = loadGliner(glinerPath, glinerTokenizerPromise);
 
-    //reqCtx.set("clip_session_promise", clipSessionPromise);
+    reqCtx.set("clip_session_promise", clipSessionPromise);
     reqCtx.set("clip_tokenizer_promise", clipTokenizerPromise);
     // reqCtx.set("gliner_model_promise", glinerModelPromise);
     await next();
