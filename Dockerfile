@@ -19,7 +19,7 @@ ARG FUNCTION_DIR
 RUN mkdir -p ${FUNCTION_DIR}
 
 COPY download_model.py build_requirements.txt ./
-COPY package.json tsconfig.json ./
+COPY package.json package-lock.json tsconfig.json ./
 COPY src ./src/
 
 COPY package.json package-lock.json ${FUNCTION_DIR}
