@@ -4,13 +4,13 @@ import * as ort from "onnxruntime-node";
 import logger from "./logger";
 import { health } from "./healthcheck/healthcheck";
 import search from "./search/search";
-//import { modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, s3Middleware, collectGarbage } from "./middleware";
+import { modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, s3Middleware, collectGarbage } from "./middleware";
 
 
 const app = new Router();
 
 app.get('/search/health', health);
-app.post('/search', search);
+app.post('/search', [lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, s3Middleware, collectGarbage], search);
 
 export const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
     logger.info(`Event: ${JSON.stringify(event, null, 2)}`);
