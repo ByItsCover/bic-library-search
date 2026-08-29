@@ -15,7 +15,7 @@ app.post('/search', [modelMiddleware, lanceMiddleware, customAuthMiddleware, har
 export const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
     logger.info(`Event: ${JSON.stringify(event, null, 2)}`);
     logger.info(`Context: ${JSON.stringify(context, null, 2)}`);
-    // ort.env.logLevel = 'verbose';
-    // ort.env.debug = true;
+    ort.env.logLevel = 'verbose';
+    ort.env.debug = true;
     return app.resolve(event, context);
 };

@@ -20,7 +20,7 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     const clipDir = path.join(process.env.ROOT_DIR ?? ".", "clip_model");
     const clipPath = path.join(clipDir, "clip_text.onnx");
     const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model");
-    const glinerPath = path.join(glinerDir, "gliner.onnx");
+    const glinerPath = path.join(glinerDir, "gliner_quantized.onnx");
 
     const clipTokenizerPromise = loadClipTokenizer(
         path.join(clipDir, "tokenizer.json"),
@@ -41,11 +41,11 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
             enableCpuMemArena: false,
         }
     );
-    //const glinerModelPromise = loadGliner(glinerPath, glinerTokenizerPromise);
+    const glinerModelPromise = loadGliner(glinerPath, glinerTokenizerPromise);
 
     reqCtx.set("clip_session_promise", clipSessionPromise);
     reqCtx.set("clip_tokenizer_promise", clipTokenizerPromise);
-    // reqCtx.set("gliner_model_promise", glinerModelPromise);
+    reqCtx.set("gliner_model_promise", glinerModelPromise);
     await next();
 };
 
