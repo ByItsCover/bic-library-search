@@ -26,10 +26,10 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     //     path.join(clipDir, "tokenizer.json"),
     //     path.join(clipDir, "tokenizer_config.json")
     // );
-    // const glinerTokenizerPromise = loadTokenizer(
-    //     path.join(glinerDir, "tokenizer.json"),
-    //     path.join(glinerDir, "tokenizer_config.json")
-    // );
+    const glinerTokenizerPromise = loadTokenizer(
+        path.join(glinerDir, "tokenizer.json"),
+        path.join(glinerDir, "tokenizer_config.json")
+    );
 
     // const clipSessionPromise = InferenceSession.create(
     //     clipPath,
