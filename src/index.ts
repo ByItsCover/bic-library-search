@@ -10,7 +10,7 @@ import { modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddle
 const app = new Router();
 
 app.get('/search/health', health);
-app.post('/search', [lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, s3Middleware, collectGarbage], search);
+app.post('/search', [modelMiddleware, lanceMiddleware, customAuthMiddleware, hardcoverMiddleware, s3Middleware, collectGarbage], search);
 
 export const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
     logger.info(`Event: ${JSON.stringify(event, null, 2)}`);
