@@ -208,8 +208,8 @@ def quantized_download(
 
     #input_tensor = torch.ones((2, 3, 224, 224), dtype=torch.float32)
     tokens = tokenizer(["some dummy", "text", "and something"], return_tensors='pt', padding="max_length")
-    print("Tokens:")
-    print(tokens)
+    # print("Tokens:")
+    # print(tokens)
     #input_tensor = torch.tensor(tokens.get("input_ids"))
     input_tensor = tokens.get("input_ids")
 

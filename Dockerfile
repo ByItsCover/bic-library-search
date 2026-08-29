@@ -22,12 +22,12 @@ COPY download_model.py build_requirements.txt ./
 COPY package.json tsconfig.json ./
 COPY src ./src/
 
-COPY package.json ${FUNCTION_DIR}
+COPY package.json package-lock.json ${FUNCTION_DIR}
 
-RUN npm install
+RUN npm ci
 RUN npm run typecheck
 RUN npm run build -- --outdir=${FUNCTION_DIR}
-RUN npm install --omit=dev --prefix ${FUNCTION_DIR}
+RUN npm ci --omit=dev --prefix ${FUNCTION_DIR}
 
 RUN pip install --no-cache-dir -r build_requirements.txt
 RUN python download_model.py ${FUNCTION_DIR}
