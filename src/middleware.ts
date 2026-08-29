@@ -22,14 +22,14 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
     const glinerDir = path.join(process.env.ROOT_DIR ?? ".", "gliner_model");
     const glinerPath = path.join(glinerDir, "gliner.onnx");
 
-    // const clipTokenizerPromise = loadClipTokenizer(
-    //     path.join(clipDir, "tokenizer.json"),
-    //     path.join(clipDir, "tokenizer_config.json")
-    // );
-    // const glinerTokenizerPromise = loadTokenizer(
-    //     path.join(glinerDir, "tokenizer.json"),
-    //     path.join(glinerDir, "tokenizer_config.json")
-    // );
+    const clipTokenizerPromise = loadClipTokenizer(
+        path.join(clipDir, "tokenizer.json"),
+        path.join(clipDir, "tokenizer_config.json")
+    );
+    const glinerTokenizerPromise = loadTokenizer(
+        path.join(glinerDir, "tokenizer.json"),
+        path.join(glinerDir, "tokenizer_config.json")
+    );
 
     const clipSessionPromise = InferenceSession.create(
         clipPath,
@@ -41,11 +41,11 @@ const modelMiddleware: Middleware = async ({ reqCtx, next }) => {
             enableCpuMemArena: false,
         }
     );
-    //const glinerModelPromise = loadGliner(glinerPath, glinerTokenizerPromise);
+    const glinerModelPromise = loadGliner(glinerPath, glinerTokenizerPromise);
 
     reqCtx.set("clip_session_promise", clipSessionPromise);
-    //reqCtx.set("clip_tokenizer_promise", clipTokenizerPromise);
-    //reqCtx.set("gliner_model_promise", glinerModelPromise);
+    reqCtx.set("clip_tokenizer_promise", clipTokenizerPromise);
+    reqCtx.set("gliner_model_promise", glinerModelPromise);
     await next();
 };
 
